@@ -1,0 +1,10 @@
+## Visual Studio & .NET GitIgnore
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.log
+preview_*.png
