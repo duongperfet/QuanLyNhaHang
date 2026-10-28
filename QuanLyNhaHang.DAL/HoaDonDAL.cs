@@ -43,5 +43,15 @@ namespace QuanLyNhaHang.DAL
             int result = DataProvider.Instance.ExecuteNonQuery(query, new object[] { giamGia, tongTien, maHoaDon });
             return result > 0;
         }
+
+        public DataTable GetDoanhThuTheoNgay(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT h.MaHoaDon AS [Mã HĐ], b.TenBan AS [Bàn], h.NgayVao AS [Ngày vào], h.NgayRa AS [Ngày ra], h.GiamGia AS [Giảm giá (%)], h.TongTien AS [Tổng tiền (VNĐ)]
+                             FROM HoaDon AS h
+                             JOIN BanAn AS b ON h.MaBan = b.MaBan
+                             WHERE h.TrangThai = 1 AND h.NgayRa >= @tuNgay AND h.NgayRa <= @denNgay
+                             ORDER BY h.NgayRa DESC";
+            return DataProvider.Instance.ExecuteQuery(query, new object[] { tuNgay, denNgay });
+        }
     }
 }

@@ -19,6 +19,9 @@ namespace QuanLyNhaHang.GUI
         {
             this.mnuMain = new System.Windows.Forms.MenuStrip();
             this.mnuHeThong = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDangXuat = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuTaiKhoanHienTai = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuQuanTri = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuThoat = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuTroGiup = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuThongTin = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,7 +76,9 @@ namespace QuanLyNhaHang.GUI
             // 
             this.mnuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuHeThong,
-            this.mnuTroGiup});
+            this.mnuQuanTri,
+            this.mnuTroGiup,
+            this.mnuTaiKhoanHienTai});
             this.mnuMain.Location = new System.Drawing.Point(0, 0);
             this.mnuMain.Name = "mnuMain";
             this.mnuMain.Size = new System.Drawing.Size(1084, 24);
@@ -82,6 +87,8 @@ namespace QuanLyNhaHang.GUI
             // mnuHeThong
             // 
             this.mnuHeThong.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuDangXuat,
+            new System.Windows.Forms.ToolStripSeparator(),
             this.mnuThoat});
             this.mnuHeThong.Name = "mnuHeThong";
             this.mnuHeThong.Size = new System.Drawing.Size(69, 20);
@@ -89,6 +96,10 @@ namespace QuanLyNhaHang.GUI
             // 
             // mnuThoat
             // 
+            this.mnuDangXuat.Name = "mnuDangXuat";
+            this.mnuDangXuat.Size = new System.Drawing.Size(128, 22);
+            this.mnuDangXuat.Text = "Đăng xuất";
+            this.mnuDangXuat.Click += new System.EventHandler(this.mnuDangXuat_Click);
             this.mnuThoat.Name = "mnuThoat";
             this.mnuThoat.Size = new System.Drawing.Size(105, 22);
             this.mnuThoat.Text = "Thoát";
@@ -108,6 +119,22 @@ namespace QuanLyNhaHang.GUI
             this.mnuThongTin.Size = new System.Drawing.Size(177, 22);
             this.mnuThongTin.Text = "Thông tin phần mềm";
             this.mnuThongTin.Click += new System.EventHandler(this.mnuThongTin_Click);
+            // 
+            // mnuTaiKhoanHienTai
+            // 
+            this.mnuTaiKhoanHienTai.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.mnuTaiKhoanHienTai.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.mnuTaiKhoanHienTai.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.mnuTaiKhoanHienTai.Name = "mnuTaiKhoanHienTai";
+            this.mnuTaiKhoanHienTai.Size = new System.Drawing.Size(120, 20);
+            this.mnuTaiKhoanHienTai.Text = "Tài khoản";
+            // 
+            // mnuQuanTri
+            // 
+            this.mnuQuanTri.Name = "mnuQuanTri";
+            this.mnuQuanTri.Size = new System.Drawing.Size(62, 20);
+            this.mnuQuanTri.Text = "&Quản trị";
+            this.mnuQuanTri.Click += new System.EventHandler(this.mnuQuanTri_Click);
             // 
             // grpSoDoBan
             // 
@@ -166,7 +193,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // pnlMauCoKhach
             // 
-            this.pnlMauCoKhach.BackColor = System.Drawing.Color.LightCoral;
+            this.pnlMauCoKhach.BackColor = System.Drawing.Color.FromArgb(239, 68, 68);
             this.pnlMauCoKhach.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlMauCoKhach.Location = new System.Drawing.Point(315, 8);
             this.pnlMauCoKhach.Name = "pnlMauCoKhach";
@@ -184,7 +211,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // pnlMauDaDat
             // 
-            this.pnlMauDaDat.BackColor = System.Drawing.Color.Khaki;
+            this.pnlMauDaDat.BackColor = System.Drawing.Color.FromArgb(245, 158, 11);
             this.pnlMauDaDat.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlMauDaDat.Location = new System.Drawing.Point(170, 8);
             this.pnlMauDaDat.Name = "pnlMauDaDat";
@@ -202,7 +229,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // pnlMauTrong
             // 
-            this.pnlMauTrong.BackColor = System.Drawing.Color.LightGreen;
+            this.pnlMauTrong.BackColor = System.Drawing.Color.FromArgb(34, 197, 94);
             this.pnlMauTrong.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlMauTrong.Location = new System.Drawing.Point(20, 8);
             this.pnlMauTrong.Name = "pnlMauTrong";
@@ -240,7 +267,9 @@ namespace QuanLyNhaHang.GUI
             // btnHuyDat
             // 
             this.btnHuyDat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHuyDat.BackColor = System.Drawing.Color.LightCoral;
+            this.btnHuyDat.BackColor = System.Drawing.Color.FromArgb(239, 68, 68);
+            this.btnHuyDat.ForeColor = System.Drawing.Color.White;
+            this.btnHuyDat.FlatAppearance.BorderSize = 0;
             this.btnHuyDat.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnHuyDat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHuyDat.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -255,7 +284,9 @@ namespace QuanLyNhaHang.GUI
             // btnNhanBan
             // 
             this.btnNhanBan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNhanBan.BackColor = System.Drawing.Color.LightGreen;
+            this.btnNhanBan.BackColor = System.Drawing.Color.FromArgb(16, 185, 129);
+            this.btnNhanBan.ForeColor = System.Drawing.Color.White;
+            this.btnNhanBan.FlatAppearance.BorderSize = 0;
             this.btnNhanBan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnNhanBan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNhanBan.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -270,7 +301,9 @@ namespace QuanLyNhaHang.GUI
             // btnDatBan
             // 
             this.btnDatBan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDatBan.BackColor = System.Drawing.Color.Gold;
+            this.btnDatBan.BackColor = System.Drawing.Color.FromArgb(245, 158, 11);
+            this.btnDatBan.ForeColor = System.Drawing.Color.White;
+            this.btnDatBan.FlatAppearance.BorderSize = 0;
             this.btnDatBan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDatBan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDatBan.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -315,7 +348,8 @@ namespace QuanLyNhaHang.GUI
             // btnThemMon
             // 
             this.btnThemMon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnThemMon.BackColor = System.Drawing.Color.DarkSlateBlue;
+            this.btnThemMon.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            this.btnThemMon.FlatAppearance.BorderSize = 0;
             this.btnThemMon.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnThemMon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThemMon.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -454,7 +488,8 @@ namespace QuanLyNhaHang.GUI
             // btnThanhToan
             // 
             this.btnThanhToan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnThanhToan.BackColor = System.Drawing.Color.DarkSlateBlue;
+            this.btnThanhToan.BackColor = System.Drawing.Color.FromArgb(16, 185, 129);
+            this.btnThanhToan.FlatAppearance.BorderSize = 0;
             this.btnThanhToan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnThanhToan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThanhToan.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -471,7 +506,8 @@ namespace QuanLyNhaHang.GUI
             // 
             this.txtTongTien.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTongTien.BackColor = System.Drawing.Color.White;
+            this.txtTongTien.BackColor = System.Drawing.Color.FromArgb(254, 242, 242);
+            this.txtTongTien.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtTongTien.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.txtTongTien.ForeColor = System.Drawing.Color.Crimson;
             this.txtTongTien.Location = new System.Drawing.Point(230, 78);
@@ -513,7 +549,9 @@ namespace QuanLyNhaHang.GUI
             // 
             // btnChuyenBan
             // 
-            this.btnChuyenBan.BackColor = System.Drawing.Color.LightSkyBlue;
+            this.btnChuyenBan.BackColor = System.Drawing.Color.FromArgb(79, 70, 229);
+            this.btnChuyenBan.ForeColor = System.Drawing.Color.White;
+            this.btnChuyenBan.FlatAppearance.BorderSize = 0;
             this.btnChuyenBan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnChuyenBan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChuyenBan.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -547,7 +585,7 @@ namespace QuanLyNhaHang.GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = System.Drawing.Color.FromArgb(241, 245, 249);
             this.ClientSize = new System.Drawing.Size(1084, 638);
             this.Controls.Add(this.grpThanhToan);
             this.Controls.Add(this.lsvHoaDon);
@@ -582,7 +620,10 @@ namespace QuanLyNhaHang.GUI
 
         private System.Windows.Forms.MenuStrip mnuMain;
         private System.Windows.Forms.ToolStripMenuItem mnuHeThong;
+        private System.Windows.Forms.ToolStripMenuItem mnuDangXuat;
+        private System.Windows.Forms.ToolStripMenuItem mnuTaiKhoanHienTai;
         private System.Windows.Forms.ToolStripMenuItem mnuThoat;
+        private System.Windows.Forms.ToolStripMenuItem mnuQuanTri;
         private System.Windows.Forms.ToolStripMenuItem mnuTroGiup;
         private System.Windows.Forms.ToolStripMenuItem mnuThongTin;
         private System.Windows.Forms.GroupBox grpSoDoBan;

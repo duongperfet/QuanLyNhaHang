@@ -6,6 +6,7 @@ using QuanLyNhaHang.BLL;
 using QuanLyNhaHang.DTO;
 using ClosedXML.Excel;
 using System.Diagnostics;
+using System.ComponentModel;
 using System.IO;
 
 namespace QuanLyNhaHang.GUI
@@ -14,6 +15,37 @@ namespace QuanLyNhaHang.GUI
     {
         private BanAnDTO? _currentBan;
         private decimal _tongTienGoc = 0;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public TaiKhoanDTO? CurrentAccount { get; private set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsLogout { get; private set; } = false;
+
+        public frmMain(TaiKhoanDTO account) : this()
+        {
+            CurrentAccount = account;
+            HienThiThongTinTaiKhoan();
+        }
+
+        private void HienThiThongTinTaiKhoan()
+        {
+            if (CurrentAccount != null)
+            {
+                bool isAdmin = CurrentAccount.LoaiTaiKhoan == 1;
+                string vaiTro = isAdmin ? "Quản lý" : "Nhân viên";
+
+                mnuTaiKhoanHienTai.Text = $"Xin chào: {CurrentAccount.HoTen} ({vaiTro})";
+                this.Text = $"Hệ Thống Quản Lý Đặt Bàn & Nhà Hàng - [{CurrentAccount.HoTen} - {vaiTro}]";
+
+                // Phân quyền nghiệp vụ:
+                // 1. Chỉ Quản lý mới có quyền truy cập menu Quản trị (Doanh thu, Món ăn, Tài khoản)
+                mnuQuanTri.Visible = isAdmin;
+
+                // 2. Cả Nhân viên và Quản lý đều được áp dụng mã giảm giá khi thanh toán
+                nudGiamGia.Enabled = true;
+                lblGiamGia.Text = "Giảm giá (%):";
+            }
+        }
 
         public frmMain()
         {
@@ -23,6 +55,7 @@ namespace QuanLyNhaHang.GUI
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            HienThiThongTinTaiKhoan();
             LoadDanhMuc();
             LoadDanhSachBan();
         }
@@ -42,24 +75,31 @@ namespace QuanLyNhaHang.GUI
                 btn.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderSize = 1;
                 btn.Tag = ban;
-                btn.Text = $"{ban.TenBan}\n({ban.TrangThai})";
 
-                // Đổi màu trực quan theo trạng thái bàn
+                bool isSelected = _currentBan != null && _currentBan.MaBan == ban.MaBan;
+                btn.FlatAppearance.BorderSize = isSelected ? 3 : 1;
+
+                // Đổi màu trực quan theo phong cách POS hiện đại
                 switch (ban.TrangThai)
                 {
                     case "Trống":
-                        btn.BackColor = Color.LightGreen;
-                        btn.FlatAppearance.BorderColor = Color.ForestGreen;
+                        btn.BackColor = Color.FromArgb(236, 253, 245);
+                        btn.ForeColor = Color.FromArgb(6, 95, 70);
+                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(167, 243, 208);
+                        btn.Text = $"🍽️ {ban.TenBan}\n\n[ Trống ]";
                         break;
                     case "Đã đặt":
-                        btn.BackColor = Color.Khaki;
-                        btn.FlatAppearance.BorderColor = Color.DarkGoldenrod;
+                        btn.BackColor = Color.FromArgb(254, 243, 199);
+                        btn.ForeColor = Color.FromArgb(146, 64, 14);
+                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(252, 211, 77);
+                        btn.Text = $"⏰ {ban.TenBan}\n\n[ Đã đặt ]";
                         break;
                     case "Có người":
-                        btn.BackColor = Color.LightCoral;
-                        btn.FlatAppearance.BorderColor = Color.Crimson;
+                        btn.BackColor = Color.FromArgb(254, 226, 226);
+                        btn.ForeColor = Color.FromArgb(153, 27, 27);
+                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(252, 165, 165);
+                        btn.Text = $"🔥 {ban.TenBan}\n\n[ Có khách ]";
                         break;
                 }
 
@@ -67,7 +107,7 @@ namespace QuanLyNhaHang.GUI
                 flpBanAn.Controls.Add(btn);
 
                 // Giữ lại bàn đang chọn nếu có
-                if (_currentBan != null && _currentBan.MaBan == ban.MaBan)
+                if (isSelected)
                 {
                     _currentBan = ban;
                 }
@@ -87,6 +127,7 @@ namespace QuanLyNhaHang.GUI
             if (_currentBan != null)
             {
                 HienThiThongTinBan(_currentBan);
+                CapNhatVienBanDangChon();
             }
         }
 
@@ -96,11 +137,45 @@ namespace QuanLyNhaHang.GUI
             {
                 _currentBan = ban;
                 HienThiThongTinBan(ban);
+                CapNhatVienBanDangChon();
+            }
+        }
+
+        private void CapNhatVienBanDangChon()
+        {
+            if (_currentBan == null) return;
+            foreach (Control c in flpBanAn.Controls)
+            {
+                if (c is Button b && b.Tag is BanAnDTO bDto)
+                {
+                    bool isSelected = bDto.MaBan == _currentBan.MaBan;
+                    b.FlatAppearance.BorderSize = isSelected ? 3 : 1;
+                    if (isSelected)
+                    {
+                        b.FlatAppearance.BorderColor = Color.FromArgb(37, 99, 235);
+                    }
+                    else
+                    {
+                        switch (bDto.TrangThai)
+                        {
+                            case "Trống":
+                                b.FlatAppearance.BorderColor = Color.FromArgb(167, 243, 208);
+                                break;
+                            case "Đã đặt":
+                                b.FlatAppearance.BorderColor = Color.FromArgb(252, 211, 77);
+                                break;
+                            case "Có người":
+                                b.FlatAppearance.BorderColor = Color.FromArgb(252, 165, 165);
+                                break;
+                        }
+                    }
+                }
             }
         }
 
         private void HienThiThongTinBan(BanAnDTO ban)
         {
+            CapNhatVienBanDangChon();
             lblTenBanDangChon.Text = $"Đang chọn: {ban.TenBan} ({ban.TrangThai})";
 
             // Cập nhật trạng thái các nút thao tác đặt bàn
@@ -485,6 +560,33 @@ namespace QuanLyNhaHang.GUI
 
         #region Menu Hệ Thống & Trợ Giúp
 
+        private void mnuQuanTri_Click(object sender, EventArgs e)
+        {
+            if (CurrentAccount == null || CurrentAccount.LoaiTaiKhoan != 1)
+            {
+                MessageBox.Show("Bạn không có quyền truy cập vào chức năng Quản trị!", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (frmQuanTri fAdmin = new frmQuanTri())
+            {
+                fAdmin.ShowDialog();
+                // Sau khi quản lý có thể cập nhật món ăn, load lại danh mục và sơ đồ bàn
+                LoadDanhMuc();
+                LoadDanhSachBan();
+            }
+        }
+
+        private void mnuDangXuat_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất tài khoản hiện tại không?", "Xác nhận đăng xuất", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm == DialogResult.Yes)
+            {
+                IsLogout = true;
+                this.Close();
+            }
+        }
+
         private void mnuThoat_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -493,8 +595,6 @@ namespace QuanLyNhaHang.GUI
         private void mnuThongTin_Click(object sender, EventArgs e)
         {
             string thongTin = "ĐỒ ÁN: PHẦN MỀM QUẢN LÝ ĐẶT BÀN & NHÀ HÀNG\n\n" +
-
-
                               "Môn học: Lập trình trên môi trường Windows\n" +
                               "Công nghệ: C# WinForms, ADO.NET (SqlConnection), SQL Server\n" +
                               "Kiến trúc: Mô hình 3 lớp chuẩn (GUI - BLL - DAL - DTO)";

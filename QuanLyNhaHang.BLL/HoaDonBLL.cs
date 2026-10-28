@@ -1,3 +1,5 @@
+using System;
+using System.Data;
 using System.Collections.Generic;
 using QuanLyNhaHang.DAL;
 using QuanLyNhaHang.DTO;
@@ -65,6 +67,11 @@ namespace QuanLyNhaHang.BLL
             }
 
             return false;
+        }
+
+        public DataTable GetDoanhThuTheoNgay(DateTime tuNgay, DateTime denNgay)
+        {
+            return HoaDonDAL.Instance.GetDoanhThuTheoNgay(tuNgay, denNgay);
         }
     }
 }

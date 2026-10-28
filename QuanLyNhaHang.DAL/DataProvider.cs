@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 namespace QuanLyNhaHang.DAL
@@ -22,6 +24,27 @@ namespace QuanLyNhaHang.DAL
         // Chuỗi kết nối SQL Server chuẩn
         private readonly string connectionStr = "Server=.\\VOHOANGVU;Database=QuanLyNhaHang;Trusted_Connection=True;TrustServerCertificate=True;";
 
+        private void AttachParameters(SqlCommand command, string query, object[]? parameter)
+        {
+            if (parameter != null)
+            {
+                var matches = Regex.Matches(query, @"@\w+");
+                var paramNames = new List<string>();
+                foreach (Match m in matches)
+                {
+                    if (!paramNames.Contains(m.Value))
+                    {
+                        paramNames.Add(m.Value);
+                    }
+                }
+
+                for (int i = 0; i < parameter.Length && i < paramNames.Count; i++)
+                {
+                    command.Parameters.AddWithValue(paramNames[i], parameter[i] ?? DBNull.Value);
+                }
+            }
+        }
+
         // 1. Thực thi câu lệnh SELECT trả về DataTable
         public DataTable ExecuteQuery(string query, object[]? parameter = null)
         {
@@ -31,19 +54,7 @@ namespace QuanLyNhaHang.DAL
                 connection.Open();
                 SqlCommand command = new SqlCommand(query, connection);
 
-                if (parameter != null)
-                {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
-                }
+                AttachParameters(command, query, parameter);
 
                 SqlDataAdapter adapter = new SqlDataAdapter(command);
                 adapter.Fill(data);
@@ -61,19 +72,7 @@ namespace QuanLyNhaHang.DAL
                 connection.Open();
                 SqlCommand command = new SqlCommand(query, connection);
 
-                if (parameter != null)
-                {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
-                }
+                AttachParameters(command, query, parameter);
 
                 data = command.ExecuteNonQuery();
                 connection.Close();
@@ -90,19 +89,7 @@ namespace QuanLyNhaHang.DAL
                 connection.Open();
                 SqlCommand command = new SqlCommand(query, connection);
 
-                if (parameter != null)
-                {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
-                }
+                AttachParameters(command, query, parameter);
 
                 data = command.ExecuteScalar();
                 connection.Close();
