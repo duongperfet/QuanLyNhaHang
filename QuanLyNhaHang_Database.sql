@@ -1,7 +1,7 @@
 -- ========================================================
 -- ĐỒ ÁN MÔN HỌC: LẬP TRÌNH TRÊN MÔI TRƯỜNG WINDOWS
 -- ĐỀ TÀI: PHẦN MỀM QUẢN LÝ ĐẶT BÀN & NHÀ HÀNG
--- SINH VIÊN: VÕ TÙNG DƯƠNG - MSSV: 24800600195
+-- ========================================================
 -- ========================================================
 
 IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'QuanLyNhaHang')
@@ -91,7 +91,7 @@ GO
 
 -- Tài khoản
 INSERT INTO TaiKhoan (TenDangNhap, MatKhau, HoTen, LoaiTaiKhoan) VALUES
-('admin', '123456', N'Võ Tùng Dương', 1),
+('admin', '123456', N'Quản trị viên', 1),
 ('nhanvien', '123456', N'Nhân Viên Phục Vụ', 0);
 
 -- Danh mục món

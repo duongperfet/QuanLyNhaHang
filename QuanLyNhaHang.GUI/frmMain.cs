@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using QuanLyNhaHang.BLL;
 using QuanLyNhaHang.DTO;
+using ClosedXML.Excel;
+using System.Diagnostics;
+using System.IO;
 
 namespace QuanLyNhaHang.GUI
 {
@@ -334,12 +337,20 @@ namespace QuanLyNhaHang.GUI
 
             if (confirm == DialogResult.Yes)
             {
+                var listMenu = HoaDonBLL.Instance.GetDanhSachMenuTheoBan(_currentBan.MaBan);
                 bool isSuccess = HoaDonBLL.Instance.ThanhToan(_currentBan.MaBan, giamGia, out _, out _);
 
                 if (isSuccess)
                 {
                     MessageBox.Show($"Thanh toán {_currentBan.TenBan} thành công!\nCảm ơn quý khách và hẹn gặp lại!", 
                                     "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    var askExport = MessageBox.Show($"Bạn có muốn xuất hóa đơn {_currentBan.TenBan} ra file Excel không?", 
+                                                    "Xuất hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (askExport == DialogResult.Yes)
+                    {
+                        XuatHoaDonExcel(_currentBan.TenBan, listMenu, _tongTienGoc, giamGia, tongTienSauGiam);
+                    }
 
                     nudGiamGia.Value = 0;
                     LoadDanhSachBan();
@@ -353,6 +364,125 @@ namespace QuanLyNhaHang.GUI
 
         #endregion
 
+        private void XuatHoaDonExcel(string tenBan, List<MenuOrderDTO> listMenu, decimal tongTienGoc, int giamGia, decimal tongTienSauGiam)
+        {
+            try
+            {
+                using (SaveFileDialog sfd = new SaveFileDialog())
+                {
+                    sfd.Filter = "Excel Workbook (*.xlsx)|*.xlsx";
+                    sfd.FileName = $"HoaDon_{tenBan.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                    sfd.Title = "Chọn nơi lưu hóa đơn Excel";
+
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        using (var workbook = new XLWorkbook())
+                        {
+                            var ws = workbook.Worksheets.Add("HoaDon");
+
+                            // Tiêu đề hóa đơn
+                            ws.Cell("A1").Value = "HỆ THỐNG QUẢN LÝ NHÀ HÀNG";
+                            ws.Range("A1:E1").Merge().Style.Font.SetBold().Font.SetFontSize(16).Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            ws.Cell("A2").Value = "HÓA ĐƠN THANH TOÁN";
+                            ws.Range("A2:E2").Merge().Style.Font.SetBold().Font.SetFontSize(14).Font.SetFontColor(XLColor.Navy).Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            ws.Cell("A3").Value = $"Bàn: {tenBan}  |  Thời gian: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+                            ws.Range("A3:E3").Merge().Style.Font.SetItalic().Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            // Tiêu đề các cột dữ liệu
+                            int row = 5;
+                            ws.Cell(row, 1).Value = "STT";
+                            ws.Cell(row, 2).Value = "Tên món";
+                            ws.Cell(row, 3).Value = "Đơn giá (VNĐ)";
+                            ws.Cell(row, 4).Value = "Số lượng";
+                            ws.Cell(row, 5).Value = "Thành tiền (VNĐ)";
+
+                            var headerRange = ws.Range(row, 1, row, 5);
+                            headerRange.Style.Font.SetBold()
+                                             .Fill.SetBackgroundColor(XLColor.FromHtml("#4F81BD"))
+                                             .Font.SetFontColor(XLColor.White)
+                                             .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            // Danh sách chi tiết món
+                            int stt = 1;
+                            foreach (var item in listMenu)
+                            {
+                                row++;
+                                ws.Cell(row, 1).Value = stt++;
+                                ws.Cell(row, 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                                ws.Cell(row, 2).Value = item.TenMon;
+
+                                ws.Cell(row, 3).Value = item.DonGia;
+                                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0";
+                                ws.Cell(row, 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                                ws.Cell(row, 4).Value = item.SoLuong;
+                                ws.Cell(row, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                                ws.Cell(row, 5).Value = item.ThanhTien;
+                                ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
+                                ws.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            }
+
+                            // Kẻ viền bảng chi tiết
+                            var tableRange = ws.Range(5, 1, row, 5);
+                            tableRange.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin)
+                                            .Border.SetInsideBorder(XLBorderStyleValues.Thin);
+
+                            // Phần tổng kết
+                            row++;
+                            ws.Cell(row, 4).Value = "Tổng tiền món:";
+                            ws.Cell(row, 4).Style.Font.SetBold().Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            ws.Cell(row, 5).Value = tongTienGoc;
+                            ws.Cell(row, 5).Style.Font.SetBold().NumberFormat.Format = "#,##0";
+                            ws.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                            row++;
+                            ws.Cell(row, 4).Value = $"Giảm giá ({giamGia}%):";
+                            ws.Cell(row, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            ws.Cell(row, 5).Value = tongTienGoc * giamGia / 100;
+                            ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
+                            ws.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                            row++;
+                            ws.Cell(row, 4).Value = "TỔNG THANH TOÁN:";
+                            ws.Cell(row, 4).Style.Font.SetBold().Font.SetFontSize(12).Font.SetFontColor(XLColor.DarkRed).Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            ws.Cell(row, 5).Value = tongTienSauGiam;
+                            ws.Cell(row, 5).Style.Font.SetBold().Font.SetFontSize(12).Font.SetFontColor(XLColor.DarkRed).NumberFormat.Format = "#,##0";
+                            ws.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                            row += 2;
+                            ws.Cell(row, 1).Value = "Cảm ơn quý khách và hẹn gặp lại!";
+                            ws.Range(row, 1, row, 5).Merge().Style.Font.SetItalic().Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            // Tự động căn chỉnh độ rộng cột
+                            ws.Columns(1, 5).AdjustToContents();
+                            ws.Column(1).Width = Math.Max(ws.Column(1).Width, 8);
+                            ws.Column(2).Width = Math.Max(ws.Column(2).Width, 25);
+                            ws.Column(3).Width = Math.Max(ws.Column(3).Width, 18);
+                            ws.Column(4).Width = Math.Max(ws.Column(4).Width, 12);
+                            ws.Column(5).Width = Math.Max(ws.Column(5).Width, 20);
+
+                            workbook.SaveAs(sfd.FileName);
+                        }
+
+                        var openConfirm = MessageBox.Show("Xuất hóa đơn ra Excel thành công!\nBạn có muốn mở file ngay không?", 
+                                                          "Xuất hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (openConfirm == DialogResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xuất file Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         #region Menu Hệ Thống & Trợ Giúp
 
         private void mnuThoat_Click(object sender, EventArgs e)
@@ -363,8 +493,8 @@ namespace QuanLyNhaHang.GUI
         private void mnuThongTin_Click(object sender, EventArgs e)
         {
             string thongTin = "ĐỒ ÁN: PHẦN MỀM QUẢN LÝ ĐẶT BÀN & NHÀ HÀNG\n\n" +
-                              "Sinh viên thực hiện: Võ Tùng Dương\n" +
-                              "MSSV: 24800600195\n" +
+
+
                               "Môn học: Lập trình trên môi trường Windows\n" +
                               "Công nghệ: C# WinForms, ADO.NET (SqlConnection), SQL Server\n" +
                               "Kiến trúc: Mô hình 3 lớp chuẩn (GUI - BLL - DAL - DTO)";

@@ -20,7 +20,7 @@ namespace QuanLyNhaHang.DAL
         private DataProvider() { }
 
         // Chuỗi kết nối SQL Server chuẩn
-        private readonly string connectionStr = "Server=.\\SQLEXPRESS;Database=QuanLyNhaHang;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connectionStr = "Server=.\\VOHOANGVU;Database=QuanLyNhaHang;Trusted_Connection=True;TrustServerCertificate=True;";
 
         // 1. Thực thi câu lệnh SELECT trả về DataTable
         public DataTable ExecuteQuery(string query, object[]? parameter = null)
