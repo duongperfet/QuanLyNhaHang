@@ -79,6 +79,7 @@ namespace QuanLyNhaHang.GUI
             this.mnuQuanTri,
             this.mnuTroGiup,
             this.mnuTaiKhoanHienTai});
+            this.mnuMain.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
             this.mnuMain.Location = new System.Drawing.Point(0, 0);
             this.mnuMain.Name = "mnuMain";
             this.mnuMain.Size = new System.Drawing.Size(1084, 24);
@@ -229,7 +230,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // pnlMauTrong
             // 
-            this.pnlMauTrong.BackColor = System.Drawing.Color.FromArgb(34, 197, 94);
+            this.pnlMauTrong.BackColor = System.Drawing.Color.FromArgb(16, 185, 129);
             this.pnlMauTrong.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlMauTrong.Location = new System.Drawing.Point(20, 8);
             this.pnlMauTrong.Name = "pnlMauTrong";
@@ -319,7 +320,7 @@ namespace QuanLyNhaHang.GUI
             // 
             this.lblTenBanDangChon.AutoSize = true;
             this.lblTenBanDangChon.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTenBanDangChon.ForeColor = System.Drawing.Color.DarkSlateBlue;
+            this.lblTenBanDangChon.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
             this.lblTenBanDangChon.Location = new System.Drawing.Point(15, 24);
             this.lblTenBanDangChon.Name = "lblTenBanDangChon";
             this.lblTenBanDangChon.Size = new System.Drawing.Size(188, 21);
@@ -483,7 +484,7 @@ namespace QuanLyNhaHang.GUI
             this.grpThanhToan.Size = new System.Drawing.Size(585, 132);
             this.grpThanhToan.TabIndex = 5;
             this.grpThanhToan.TabStop = false;
-            this.grpThanhToan.Text = "Thanh toán & Chuyển bàn";
+            this.grpThanhToan.Text = "THANH TOÁN && ĐIỀU PHỐI BÀN";
             // 
             // btnThanhToan
             // 
@@ -494,9 +495,9 @@ namespace QuanLyNhaHang.GUI
             this.btnThanhToan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThanhToan.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnThanhToan.ForeColor = System.Drawing.Color.White;
-            this.btnThanhToan.Location = new System.Drawing.Point(435, 30);
+            this.btnThanhToan.Location = new System.Drawing.Point(425, 20);
             this.btnThanhToan.Name = "btnThanhToan";
-            this.btnThanhToan.Size = new System.Drawing.Size(140, 80);
+            this.btnThanhToan.Size = new System.Drawing.Size(145, 91);
             this.btnThanhToan.TabIndex = 7;
             this.btnThanhToan.Text = "THANH TOÁN";
             this.btnThanhToan.UseVisualStyleBackColor = false;
@@ -506,14 +507,14 @@ namespace QuanLyNhaHang.GUI
             // 
             this.txtTongTien.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTongTien.BackColor = System.Drawing.Color.FromArgb(254, 242, 242);
+            this.txtTongTien.BackColor = System.Drawing.Color.FromArgb(254, 243, 199);
             this.txtTongTien.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtTongTien.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.txtTongTien.ForeColor = System.Drawing.Color.Crimson;
-            this.txtTongTien.Location = new System.Drawing.Point(230, 78);
+            this.txtTongTien.ForeColor = System.Drawing.Color.FromArgb(185, 28, 28);
+            this.txtTongTien.Location = new System.Drawing.Point(210, 73);
             this.txtTongTien.Name = "txtTongTien";
             this.txtTongTien.ReadOnly = true;
-            this.txtTongTien.Size = new System.Drawing.Size(185, 32);
+            this.txtTongTien.Size = new System.Drawing.Size(200, 32);
             this.txtTongTien.TabIndex = 6;
             this.txtTongTien.Text = "0 VNĐ";
             this.txtTongTien.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -522,8 +523,8 @@ namespace QuanLyNhaHang.GUI
             // 
             this.lblTongTien.AutoSize = true;
             this.lblTongTien.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTongTien.ForeColor = System.Drawing.Color.Crimson;
-            this.lblTongTien.Location = new System.Drawing.Point(226, 56);
+            this.lblTongTien.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
+            this.lblTongTien.Location = new System.Drawing.Point(210, 52);
             this.lblTongTien.Name = "lblTongTien";
             this.lblTongTien.Size = new System.Drawing.Size(76, 19);
             this.lblTongTien.TabIndex = 5;
@@ -532,16 +533,16 @@ namespace QuanLyNhaHang.GUI
             // nudGiamGia
             // 
             this.nudGiamGia.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.nudGiamGia.Location = new System.Drawing.Point(230, 25);
+            this.nudGiamGia.Location = new System.Drawing.Point(295, 20);
             this.nudGiamGia.Name = "nudGiamGia";
-            this.nudGiamGia.Size = new System.Drawing.Size(80, 25);
+            this.nudGiamGia.Size = new System.Drawing.Size(115, 25);
             this.nudGiamGia.TabIndex = 4;
             this.nudGiamGia.ValueChanged += new System.EventHandler(this.nudGiamGia_ValueChanged);
             // 
             // lblGiamGia
             // 
             this.lblGiamGia.AutoSize = true;
-            this.lblGiamGia.Location = new System.Drawing.Point(140, 28);
+            this.lblGiamGia.Location = new System.Drawing.Point(210, 24);
             this.lblGiamGia.Name = "lblGiamGia";
             this.lblGiamGia.Size = new System.Drawing.Size(87, 17);
             this.lblGiamGia.TabIndex = 3;
@@ -549,17 +550,17 @@ namespace QuanLyNhaHang.GUI
             // 
             // btnChuyenBan
             // 
-            this.btnChuyenBan.BackColor = System.Drawing.Color.FromArgb(79, 70, 229);
+            this.btnChuyenBan.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
             this.btnChuyenBan.ForeColor = System.Drawing.Color.White;
             this.btnChuyenBan.FlatAppearance.BorderSize = 0;
             this.btnChuyenBan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnChuyenBan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChuyenBan.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnChuyenBan.Location = new System.Drawing.Point(15, 78);
+            this.btnChuyenBan.Location = new System.Drawing.Point(12, 73);
             this.btnChuyenBan.Name = "btnChuyenBan";
-            this.btnChuyenBan.Size = new System.Drawing.Size(110, 32);
+            this.btnChuyenBan.Size = new System.Drawing.Size(85, 38);
             this.btnChuyenBan.TabIndex = 2;
-            this.btnChuyenBan.Text = "Chuyển bàn";
+            this.btnChuyenBan.Text = "Chuyển";
             this.btnChuyenBan.UseVisualStyleBackColor = false;
             this.btnChuyenBan.Click += new System.EventHandler(this.btnChuyenBan_Click);
             // 
@@ -567,19 +568,19 @@ namespace QuanLyNhaHang.GUI
             // 
             this.cboChuyenBan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboChuyenBan.FormattingEnabled = true;
-            this.cboChuyenBan.Location = new System.Drawing.Point(15, 45);
+            this.cboChuyenBan.Location = new System.Drawing.Point(12, 43);
             this.cboChuyenBan.Name = "cboChuyenBan";
-            this.cboChuyenBan.Size = new System.Drawing.Size(110, 25);
+            this.cboChuyenBan.Size = new System.Drawing.Size(178, 25);
             this.cboChuyenBan.TabIndex = 1;
             // 
             // lblChuyenBan
             // 
             this.lblChuyenBan.AutoSize = true;
-            this.lblChuyenBan.Location = new System.Drawing.Point(12, 25);
+            this.lblChuyenBan.Location = new System.Drawing.Point(10, 22);
             this.lblChuyenBan.Name = "lblChuyenBan";
             this.lblChuyenBan.Size = new System.Drawing.Size(107, 17);
             this.lblChuyenBan.TabIndex = 0;
-            this.lblChuyenBan.Text = "Chuyển sang bàn:";
+            this.lblChuyenBan.Text = "Bàn chuyển / gộp:";
             // 
             // frmMain
             // 
@@ -597,7 +598,7 @@ namespace QuanLyNhaHang.GUI
             this.MinimumSize = new System.Drawing.Size(1100, 675);
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Phần Mềm Quản Lý Đặt Bàn & Nhà Hàng";
+            this.Text = "Hệ Thống Quản Lý Nhà Hàng & Bán Hàng POS";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.mnuMain.ResumeLayout(false);
             this.mnuMain.PerformLayout();

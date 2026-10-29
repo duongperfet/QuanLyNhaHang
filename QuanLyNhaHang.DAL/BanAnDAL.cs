@@ -52,5 +52,37 @@ namespace QuanLyNhaHang.DAL
 
             return true;
         }
+
+        public bool GopBan(int maBanNguon, int maBanDich)
+        {
+            int maHDNguon = HoaDonDAL.Instance.GetMaHoaDonChuaThanhToanTheoBan(maBanNguon);
+            int maHDDich = HoaDonDAL.Instance.GetMaHoaDonChuaThanhToanTheoBan(maBanDich);
+
+            if (maHDNguon == -1 || maHDDich == -1) return false;
+
+            // 1. Chuyển và cộng dồn toàn bộ món từ hóa đơn nguồn sang hóa đơn đích
+            string queryGetMonNguon = "SELECT MaMon, SoLuong FROM ChiTietHoaDon WHERE MaHoaDon = @maHDNguon";
+            DataTable dtMonNguon = DataProvider.Instance.ExecuteQuery(queryGetMonNguon, new object[] { maHDNguon });
+
+            foreach (DataRow row in dtMonNguon.Rows)
+            {
+                int maMon = (int)row["MaMon"];
+                int soLuong = (int)row["SoLuong"];
+                ChiTietHoaDonDAL.Instance.ThemChiTietHoaDon(maHDDich, maMon, soLuong);
+            }
+
+            // 2. Xóa chi tiết hóa đơn cũ và xóa hóa đơn của bàn nguồn
+            string queryDeleteCTHD = "DELETE FROM ChiTietHoaDon WHERE MaHoaDon = @maHDNguon";
+            DataProvider.Instance.ExecuteNonQuery(queryDeleteCTHD, new object[] { maHDNguon });
+
+            string queryDeleteHD = "DELETE FROM HoaDon WHERE MaHoaDon = @maHDNguon";
+            DataProvider.Instance.ExecuteNonQuery(queryDeleteHD, new object[] { maHDNguon });
+
+            // 3. Cập nhật trạng thái bàn
+            CapNhatTrangThaiBan(maBanDich, "Có người");
+            CapNhatTrangThaiBan(maBanNguon, "Trống");
+
+            return true;
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using QuanLyNhaHang.BLL;
 using QuanLyNhaHang.DTO;
@@ -35,7 +36,7 @@ namespace QuanLyNhaHang.GUI
                 string vaiTro = isAdmin ? "Quản lý" : "Nhân viên";
 
                 mnuTaiKhoanHienTai.Text = $"Xin chào: {CurrentAccount.HoTen} ({vaiTro})";
-                this.Text = $"Hệ Thống Quản Lý Đặt Bàn & Nhà Hàng - [{CurrentAccount.HoTen} - {vaiTro}]";
+                this.Text = $"Hệ Thống Quản Lý Nhà Hàng & Bán Hàng POS - [{CurrentAccount.HoTen} - {vaiTro}]";
 
                 // Phân quyền nghiệp vụ:
                 // 1. Chỉ Quản lý mới có quyền truy cập menu Quản trị (Doanh thu, Món ăn, Tài khoản)
@@ -47,10 +48,298 @@ namespace QuanLyNhaHang.GUI
             }
         }
 
+        private Button? btnGopBan;
+
         public frmMain()
         {
             InitializeComponent();
-            this.Text = "Hệ Thống Quản Lý Đặt Bàn & Nhà Hàng";
+            this.Text = "Hệ Thống Quản Lý Nhà Hàng & Bán Hàng POS";
+            KhoiTaoNutGopBan();
+            ApDungGiaoDienHienDai();
+            Resize += (_, _) => BoTriGiaoDien();
+            WindowState = FormWindowState.Maximized;
+        }
+
+        private static readonly Color MauNen = BistroTheme.Canvas;
+        private static readonly Color MauThe = BistroTheme.Surface;
+        private static readonly Color MauChu = BistroTheme.Ink;
+        private static readonly Color MauChuPhu = BistroTheme.Muted;
+        private static readonly Color MauXanh = BistroTheme.Olive;
+        private static readonly Color MauVien = BistroTheme.Line;
+
+        private void ApDungGiaoDienHienDai()
+        {
+            BackColor = MauNen;
+            Font = new Font("Segoe UI", 9.5f);
+            MinimumSize = new Size(1100, 700);
+
+            mnuMain.BackColor = MauThe;
+            mnuMain.ForeColor = MauChu;
+            mnuMain.Font = new Font("Segoe UI", 9.5f);
+            mnuMain.Padding = new Padding(12, 4, 12, 4);
+            mnuTaiKhoanHienTai.ForeColor = MauXanh;
+
+            foreach (GroupBox group in new[] { grpSoDoBan, grpThongTinBan, grpGoiMon, grpThanhToan })
+            {
+                group.BackColor = MauThe;
+                group.ForeColor = BistroTheme.Olive;
+                group.Font = new Font("Georgia", 10f, FontStyle.Bold);
+            }
+
+            grpSoDoBan.Text = "SƠ ĐỒ BÀN";
+            grpThongTinBan.Text = "THÔNG TIN BÀN";
+            grpGoiMon.Text = "GỌI MÓN";
+            grpThanhToan.Text = "THANH TOÁN & ĐIỀU PHỐI";
+
+            flpBanAn.BackColor = MauThe;
+            flpBanAn.BorderStyle = BorderStyle.None;
+            flpBanAn.Padding = new Padding(8);
+            flpBanAn.WrapContents = true;
+            flpBanAn.FlowDirection = FlowDirection.LeftToRight;
+
+            pnlChuThich.BackColor = MauThe;
+            foreach (Label label in new[] { lblChuThichTrong, lblChuThichDaDat, lblChuThichCoKhach })
+            {
+                label.ForeColor = MauChuPhu;
+                label.Font = new Font("Segoe UI", 9f);
+            }
+
+            lblTenBanDangChon.ForeColor = MauChu;
+            lblThongTinDat.ForeColor = MauChuPhu;
+            lblDanhMuc.ForeColor = MauChuPhu;
+            lblMonAn.ForeColor = MauChuPhu;
+            lblSoLuong.ForeColor = MauChuPhu;
+            lblChuyenBan.ForeColor = MauChuPhu;
+            lblGiamGia.ForeColor = MauChuPhu;
+
+            foreach (ComboBox combo in new[] { cboDanhMuc, cboMonAn, cboChuyenBan })
+            {
+                combo.Font = new Font("Segoe UI", 9.5f);
+                combo.BackColor = Color.White;
+                combo.ForeColor = MauChu;
+                combo.FlatStyle = FlatStyle.Flat;
+            }
+
+            nudSoLuong.Font = new Font("Segoe UI", 10f);
+            nudGiamGia.Font = new Font("Segoe UI", 10f);
+
+            DinhDangNut(btnDatBan, BistroTheme.Brass);
+            DinhDangNut(btnNhanBan, MauXanh);
+            DinhDangNut(btnHuyDat, BistroTheme.Wine);
+            DinhDangNut(btnThemMon, MauXanh);
+            DinhDangNut(btnChuyenBan, BistroTheme.Wine);
+            DinhDangNut(btnThanhToan, MauXanh);
+            DinhDangNut(btnGopBan, BistroTheme.Wine);
+
+            lsvHoaDon.BackColor = Color.White;
+            lsvHoaDon.ForeColor = MauChu;
+            lsvHoaDon.BorderStyle = BorderStyle.None;
+            lsvHoaDon.GridLines = false;
+            lsvHoaDon.Font = new Font("Segoe UI", 9.5f);
+            lsvHoaDon.OwnerDraw = true;
+            lsvHoaDon.DrawColumnHeader += LsvHoaDon_DrawColumnHeader;
+            lsvHoaDon.DrawItem += (_, e) =>
+            {
+                if (lsvHoaDon.View != View.Details)
+                {
+                    e.DrawDefault = true;
+                }
+            };
+            lsvHoaDon.DrawSubItem += LsvHoaDon_DrawSubItem;
+
+            lblTongTien.ForeColor = MauXanh;
+            txtTongTien.BackColor = BistroTheme.OliveSoft;
+            txtTongTien.ForeColor = BistroTheme.Olive;
+            txtTongTien.BorderStyle = BorderStyle.FixedSingle;
+            txtTongTien.Font = new Font("Segoe UI", 15f, FontStyle.Bold);
+
+            BoTriGiaoDien();
+        }
+
+        private static void DinhDangNut(Button? button, Color color)
+        {
+            if (button == null) return;
+
+            button.BackColor = color;
+            button.ForeColor = Color.White;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.MouseOverBackColor = ControlPaint.Light(color, 0.12f);
+            button.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(color, 0.08f);
+            button.Cursor = Cursors.Hand;
+            button.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            button.UseVisualStyleBackColor = false;
+        }
+
+        private void BoTriGiaoDien()
+        {
+            if (mnuMain == null || grpSoDoBan == null) return;
+
+            const int margin = 18;
+            const int gap = 14;
+            int top = mnuMain.Bottom + 12;
+            int availableHeight = ClientSize.Height - top - margin;
+            if (availableHeight < 360) return;
+
+            int leftWidth = Math.Max(330, (ClientSize.Width - margin * 2 - gap) * 34 / 100);
+            leftWidth = Math.Min(leftWidth, ClientSize.Width - margin * 2 - gap - 520);
+            int rightX = margin + leftWidth + gap;
+            int rightWidth = ClientSize.Width - rightX - margin;
+
+            grpSoDoBan.SetBounds(margin, top, leftWidth, availableHeight);
+            flpBanAn.SetBounds(14, 30, leftWidth - 28, availableHeight - 92);
+            pnlChuThich.SetBounds(14, availableHeight - 52, leftWidth - 28, 36);
+
+            const int infoHeight = 96;
+            const int orderHeight = 94;
+            const int footerHeight = 158;
+            grpThongTinBan.SetBounds(rightX, top, rightWidth, infoHeight);
+            grpGoiMon.SetBounds(rightX, top + infoHeight + 10, rightWidth, orderHeight);
+            grpThanhToan.SetBounds(rightX, top + availableHeight - footerHeight, rightWidth, footerHeight);
+
+            int listTop = top + infoHeight + orderHeight + 22;
+            int listBottom = grpThanhToan.Top - 12;
+            lsvHoaDon.SetBounds(rightX, listTop, rightWidth, Math.Max(100, listBottom - listTop));
+
+            int innerWidth = rightWidth - 24;
+            int actionWidth = 82;
+            int actionGap = 7;
+            int actionStart = rightWidth - (actionWidth * 3 + actionGap * 2) - 16;
+            lblTenBanDangChon.SetBounds(18, 27, Math.Max(160, actionStart - 28), 25);
+            lblThongTinDat.SetBounds(18, 58, Math.Max(160, actionStart - 28), 20);
+            btnDatBan.SetBounds(actionStart, 30, actionWidth, 42);
+            btnNhanBan.SetBounds(actionStart + actionWidth + actionGap, 30, actionWidth, 42);
+            btnHuyDat.SetBounds(actionStart + (actionWidth + actionGap) * 2, 30, actionWidth, 42);
+
+            int addButtonWidth = 106;
+            int quantityWidth = 70;
+            int quantityX = innerWidth - quantityWidth - addButtonWidth - 22;
+            int foodX = 180;
+            int foodWidth = Math.Max(130, quantityX - foodX - 14);
+            lblDanhMuc.SetBounds(18, 27, 150, 18);
+            cboDanhMuc.SetBounds(18, 49, 150, 29);
+            lblMonAn.SetBounds(foodX, 27, foodWidth, 18);
+            cboMonAn.SetBounds(foodX, 49, foodWidth, 29);
+            lblSoLuong.SetBounds(quantityX, 27, quantityWidth, 18);
+            nudSoLuong.SetBounds(quantityX, 49, quantityWidth, 29);
+            btnThemMon.SetBounds(innerWidth - addButtonWidth - 4, 43, addButtonWidth, 40);
+
+            int payButtonWidth = 148;
+            int payButtonX = rightWidth - payButtonWidth - 16;
+            lblChuyenBan.SetBounds(16, 29, 190, 18);
+            cboChuyenBan.SetBounds(16, 51, 190, 29);
+            btnChuyenBan.SetBounds(16, 88, 90, 38);
+            btnGopBan?.SetBounds(112, 88, 94, 38);
+            lblGiamGia.SetBounds(226, 29, 110, 18);
+            nudGiamGia.SetBounds(226, 51, 110, 29);
+            lblTongTien.SetBounds(226, 86, Math.Max(120, payButtonX - 240), 18);
+            txtTongTien.SetBounds(226, 106, Math.Max(150, payButtonX - 242), 34);
+            btnThanhToan.SetBounds(payButtonX, 34, payButtonWidth, 96);
+
+            int tableGap = 10;
+            int tableWidth = Math.Max(92, (flpBanAn.ClientSize.Width - flpBanAn.Padding.Horizontal - tableGap * 2 - 18) / 3);
+            foreach (Control control in flpBanAn.Controls)
+            {
+                if (control is TableCardButton tableButton)
+                {
+                    tableButton.Size = new Size(tableWidth, 92);
+                    tableButton.Margin = new Padding(0, 0, tableGap, tableGap);
+                }
+            }
+
+            int columnsWidth = Math.Max(360, lsvHoaDon.ClientSize.Width - 4);
+            colTenMon.Width = (int)(columnsWidth * 0.42);
+            colSoLuong.Width = (int)(columnsWidth * 0.12);
+            colDonGia.Width = (int)(columnsWidth * 0.21);
+            colThanhTien.Width = columnsWidth - colTenMon.Width - colSoLuong.Width - colDonGia.Width;
+        }
+
+        private void LsvHoaDon_DrawColumnHeader(object? sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            using var brush = new SolidBrush(BistroTheme.OliveSoft);
+            using var textBrush = new SolidBrush(MauChuPhu);
+            using var font = new Font("Segoe UI", 9f, FontStyle.Bold);
+            e.Graphics.FillRectangle(brush, e.Bounds);
+            TextRenderer.DrawText(e.Graphics, e.Header?.Text ?? string.Empty, font, e.Bounds, textBrush.Color,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+        }
+
+        private void LsvHoaDon_DrawSubItem(object? sender, DrawListViewSubItemEventArgs e)
+        {
+            Color background = e.ItemIndex % 2 == 0 ? BistroTheme.Surface : BistroTheme.Canvas;
+            using var brush = new SolidBrush(background);
+            e.Graphics.FillRectangle(brush, e.Bounds);
+            TextFormatFlags alignment = e.ColumnIndex == 1
+                ? TextFormatFlags.HorizontalCenter
+                : e.ColumnIndex >= 2 ? TextFormatFlags.Right : TextFormatFlags.Left;
+            var textBounds = Rectangle.Inflate(e.Bounds, e.ColumnIndex == 1 ? -2 : -10, 0);
+            TextRenderer.DrawText(e.Graphics, e.SubItem?.Text ?? string.Empty, lsvHoaDon.Font, textBounds, MauChu,
+                alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        private void KhoiTaoNutGopBan()
+        {
+            // Căn chỉnh bố cục cụm Thanh toán & Điều phối bàn chuẩn xác, thoáng đẹp
+            grpThanhToan.Text = "THANH TOÁN & ĐIỀU PHỐI BÀN";
+
+            // Cột 1: Chuyển & Gộp bàn
+            lblChuyenBan.Location = new Point(14, 25);
+            lblChuyenBan.Text = "Chuyển / Gộp sang:";
+            lblChuyenBan.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            lblChuyenBan.ForeColor = BistroTheme.Muted;
+
+            cboChuyenBan.Location = new Point(14, 48);
+            cboChuyenBan.Size = new Size(182, 26);
+
+            btnChuyenBan.Location = new Point(14, 80);
+            btnChuyenBan.Size = new Size(88, 38);
+            btnChuyenBan.Text = "Chuyển";
+            btnChuyenBan.BackColor = BistroTheme.Wine;
+            btnChuyenBan.ForeColor = Color.White;
+            btnChuyenBan.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+
+            btnGopBan = new Button();
+            btnGopBan.Text = "Gộp bàn";
+            btnGopBan.BackColor = BistroTheme.Olive;
+            btnGopBan.ForeColor = Color.White;
+            btnGopBan.FlatAppearance.BorderSize = 0;
+            btnGopBan.FlatStyle = FlatStyle.Flat;
+            btnGopBan.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            btnGopBan.Cursor = Cursors.Hand;
+            btnGopBan.Location = new Point(108, 80);
+            btnGopBan.Size = new Size(88, 38);
+            btnGopBan.Click += btnGopBan_Click;
+            grpThanhToan.Controls.Add(btnGopBan);
+
+            // Cột 2: Giảm giá & Tổng tiền
+            lblGiamGia.Location = new Point(218, 25);
+            lblGiamGia.Text = "Giảm giá (%):";
+            lblGiamGia.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            lblGiamGia.ForeColor = BistroTheme.Muted;
+
+            nudGiamGia.Location = new Point(310, 22);
+            nudGiamGia.Size = new Size(95, 26);
+            nudGiamGia.Font = new Font("Segoe UI", 10.5f, FontStyle.Bold);
+
+            lblTongTien.Location = new Point(218, 55);
+            lblTongTien.Text = "TỔNG THANH TOÁN:";
+            lblTongTien.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            lblTongTien.ForeColor = BistroTheme.Wine;
+
+            txtTongTien.Location = new Point(218, 77);
+            txtTongTien.Size = new Size(187, 36);
+            txtTongTien.Font = new Font("Segoe UI", 14f, FontStyle.Bold);
+            txtTongTien.BackColor = BistroTheme.OliveSoft;
+            txtTongTien.ForeColor = BistroTheme.Wine;
+            txtTongTien.BorderStyle = BorderStyle.FixedSingle;
+
+            // Cột 3: Nút Thanh toán
+            btnThanhToan.Location = new Point(420, 22);
+            btnThanhToan.Size = new Size(150, 96);
+            btnThanhToan.BackColor = BistroTheme.Olive;
+            btnThanhToan.ForeColor = Color.White;
+            btnThanhToan.Font = new Font("Segoe UI", 13f, FontStyle.Bold);
+            btnThanhToan.Text = "THANH TOÁN";
         }
 
         private void frmMain_Load(object sender, EventArgs e)
@@ -69,37 +358,36 @@ namespace QuanLyNhaHang.GUI
 
             foreach (BanAnDTO ban in listBan)
             {
-                Button btn = new Button();
-                btn.Width = 98;
-                btn.Height = 98;
-                btn.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
-                btn.Cursor = Cursors.Hand;
-                btn.FlatStyle = FlatStyle.Flat;
+                TableCardButton btn = new TableCardButton
+                {
+                    Width = 112,
+                    Height = 92,
+                    TableName = ban.TenBan,
+                    AccessibleName = $"{ban.TenBan}, {ban.TrangThai}",
+                    Cursor = Cursors.Hand,
+                    TabStop = true,
+                };
                 btn.Tag = ban;
 
                 bool isSelected = _currentBan != null && _currentBan.MaBan == ban.MaBan;
-                btn.FlatAppearance.BorderSize = isSelected ? 3 : 1;
+                btn.IsSelected = isSelected;
 
-                // Đổi màu trực quan theo phong cách POS hiện đại
                 switch (ban.TrangThai)
                 {
                     case "Trống":
-                        btn.BackColor = Color.FromArgb(236, 253, 245);
-                        btn.ForeColor = Color.FromArgb(6, 95, 70);
-                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(167, 243, 208);
-                        btn.Text = $"🍽️ {ban.TenBan}\n\n[ Trống ]";
+                        btn.CardColor = BistroTheme.OliveSoft;
+                        btn.StatusColor = BistroTheme.Olive;
+                        btn.StatusText = "TRỐNG";
                         break;
                     case "Đã đặt":
-                        btn.BackColor = Color.FromArgb(254, 243, 199);
-                        btn.ForeColor = Color.FromArgb(146, 64, 14);
-                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(252, 211, 77);
-                        btn.Text = $"⏰ {ban.TenBan}\n\n[ Đã đặt ]";
+                        btn.CardColor = Color.FromArgb(249, 244, 232);
+                        btn.StatusColor = BistroTheme.Brass;
+                        btn.StatusText = "ĐÃ ĐẶT";
                         break;
                     case "Có người":
-                        btn.BackColor = Color.FromArgb(254, 226, 226);
-                        btn.ForeColor = Color.FromArgb(153, 27, 27);
-                        btn.FlatAppearance.BorderColor = isSelected ? Color.FromArgb(37, 99, 235) : Color.FromArgb(252, 165, 165);
-                        btn.Text = $"🔥 {ban.TenBan}\n\n[ Có khách ]";
+                        btn.CardColor = Color.FromArgb(249, 238, 236);
+                        btn.StatusColor = BistroTheme.Wine;
+                        btn.StatusText = "CÓ KHÁCH";
                         break;
                 }
 
@@ -146,29 +434,9 @@ namespace QuanLyNhaHang.GUI
             if (_currentBan == null) return;
             foreach (Control c in flpBanAn.Controls)
             {
-                if (c is Button b && b.Tag is BanAnDTO bDto)
+                if (c is TableCardButton b && b.Tag is BanAnDTO bDto)
                 {
-                    bool isSelected = bDto.MaBan == _currentBan.MaBan;
-                    b.FlatAppearance.BorderSize = isSelected ? 3 : 1;
-                    if (isSelected)
-                    {
-                        b.FlatAppearance.BorderColor = Color.FromArgb(37, 99, 235);
-                    }
-                    else
-                    {
-                        switch (bDto.TrangThai)
-                        {
-                            case "Trống":
-                                b.FlatAppearance.BorderColor = Color.FromArgb(167, 243, 208);
-                                break;
-                            case "Đã đặt":
-                                b.FlatAppearance.BorderColor = Color.FromArgb(252, 211, 77);
-                                break;
-                            case "Có người":
-                                b.FlatAppearance.BorderColor = Color.FromArgb(252, 165, 165);
-                                break;
-                        }
-                    }
+                    b.IsSelected = bDto.MaBan == _currentBan.MaBan;
                 }
             }
         }
@@ -361,6 +629,40 @@ namespace QuanLyNhaHang.GUI
 
         #region Xử lý Chuyển bàn & Thanh toán
 
+        private void btnGopBan_Click(object? sender, EventArgs e)
+        {
+            if (_currentBan == null) return;
+
+            if (cboChuyenBan.SelectedValue is not int maBanDich) return;
+            string tenBanDich = cboChuyenBan.Text;
+
+            if (maBanDich == _currentBan.MaBan)
+            {
+                MessageBox.Show("Không thể gộp vào chính bàn đang chọn!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (lsvHoaDon.Items.Count == 0)
+            {
+                MessageBox.Show($"Bàn {_currentBan.TenBan} hiện chưa có món ăn nào để gộp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show($"Bạn có chắc muốn GỘP TOÀN BỘ MÓN từ {_currentBan.TenBan} sang {tenBanDich} để thanh toán chung?",
+                                          "Xác nhận gộp bàn", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.Yes)
+            {
+                bool result = BanAnBLL.Instance.GopBan(_currentBan.MaBan, maBanDich, out string message);
+                MessageBox.Show(message, "Thông báo", MessageBoxButtons.OK, result ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (result)
+                {
+                    LoadDanhSachBan();
+                }
+            }
+        }
+
         private void btnChuyenBan_Click(object sender, EventArgs e)
         {
             if (_currentBan == null) return;
@@ -438,6 +740,114 @@ namespace QuanLyNhaHang.GUI
         }
 
         #endregion
+
+        private sealed class TableCardButton : Button
+        {
+            private bool _hovered;
+            private bool _pressed;
+
+            public string TableName { get; set; } = string.Empty;
+            public string StatusText { get; set; } = string.Empty;
+            public Color CardColor { get; set; } = Color.White;
+            public Color StatusColor { get; set; } = Color.Gray;
+            public bool IsSelected { get; set; }
+
+            public TableCardButton()
+            {
+                SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+                FlatStyle = FlatStyle.Flat;
+                FlatAppearance.BorderSize = 0;
+            }
+
+            protected override void OnMouseEnter(EventArgs e)
+            {
+                _hovered = true;
+                Invalidate();
+                base.OnMouseEnter(e);
+            }
+
+            protected override void OnMouseLeave(EventArgs e)
+            {
+                _hovered = false;
+                Invalidate();
+                base.OnMouseLeave(e);
+            }
+
+            protected override void OnMouseDown(MouseEventArgs e)
+            {
+                _pressed = true;
+                Invalidate();
+                base.OnMouseDown(e);
+            }
+
+            protected override void OnMouseUp(MouseEventArgs e)
+            {
+                _pressed = false;
+                Invalidate();
+                base.OnMouseUp(e);
+            }
+
+            protected override void OnPaint(PaintEventArgs e)
+            {
+                Graphics graphics = e.Graphics;
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                graphics.Clear(Parent?.BackColor ?? Color.White);
+
+                Rectangle cardBounds = ClientRectangle;
+                cardBounds.Inflate(-1, -1);
+                Color fillColor = _pressed
+                    ? ControlPaint.Dark(CardColor, 0.04f)
+                    : _hovered ? ControlPaint.Light(CardColor, 0.35f) : CardColor;
+
+                using (GraphicsPath cardPath = CreateRoundedRectangle(cardBounds, 12))
+                using (var fillBrush = new SolidBrush(fillColor))
+                using (var borderPen = new Pen(IsSelected ? MauXanh : MauVien, IsSelected ? 2f : 1f))
+                {
+                    graphics.FillPath(fillBrush, cardPath);
+                    graphics.DrawPath(borderPen, cardPath);
+                }
+
+                using (var titleFont = new Font("Segoe UI", 10f, FontStyle.Bold))
+                using (var titleBrush = new SolidBrush(MauChu))
+                {
+                    Rectangle titleBounds = new Rectangle(8, 13, Width - 16, 24);
+                    TextRenderer.DrawText(graphics, TableName, titleFont, titleBounds, titleBrush.Color,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                }
+
+                int badgeWidth = Math.Min(96, Width - 24);
+                Rectangle badge = new Rectangle((Width - badgeWidth) / 2, 52, badgeWidth, 23);
+                using (GraphicsPath badgePath = CreateRoundedRectangle(badge, 8))
+                using (var badgeBrush = new SolidBrush(StatusColor))
+                using (var badgeFont = new Font("Segoe UI", 8f, FontStyle.Bold))
+                using (var badgeTextBrush = new SolidBrush(Color.White))
+                {
+                    graphics.FillPath(badgeBrush, badgePath);
+                    TextRenderer.DrawText(graphics, StatusText, badgeFont, badge, badgeTextBrush.Color,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                }
+
+                if (Focused)
+                {
+                    Rectangle focusBounds = ClientRectangle;
+                    focusBounds.Inflate(-5, -5);
+                    ControlPaint.DrawFocusRectangle(graphics, focusBounds);
+                }
+            }
+
+            private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
+            {
+                int diameter = Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height));
+                var path = new GraphicsPath();
+                path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
+                path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
+                path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
+                path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90, 90);
+                path.CloseFigure();
+                return path;
+            }
+        }
 
         private void XuatHoaDonExcel(string tenBan, List<MenuOrderDTO> listMenu, decimal tongTienGoc, int giamGia, decimal tongTienSauGiam)
         {

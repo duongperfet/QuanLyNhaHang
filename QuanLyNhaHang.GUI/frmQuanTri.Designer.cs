@@ -168,7 +168,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // btnXuatExcelDoanhThu
             // 
-            this.btnXuatExcelDoanhThu.BackColor = System.Drawing.Color.SeaGreen;
+            this.btnXuatExcelDoanhThu.BackColor = System.Drawing.Color.FromArgb(16, 185, 129);
             this.btnXuatExcelDoanhThu.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnXuatExcelDoanhThu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXuatExcelDoanhThu.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -183,7 +183,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // btnThongKe
             // 
-            this.btnThongKe.BackColor = System.Drawing.Color.RoyalBlue;
+            this.btnThongKe.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnThongKe.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnThongKe.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThongKe.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -613,9 +613,9 @@ namespace QuanLyNhaHang.GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 531);
+            this.ClientSize = new System.Drawing.Size(1180, 720);
             this.Controls.Add(this.tcQuanTri);
-            this.MinimumSize = new System.Drawing.Size(850, 500);
+            this.MinimumSize = new System.Drawing.Size(1024, 680);
             this.Name = "frmQuanTri";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bảng Điều Khiển Quản Trị Hệ Thống";

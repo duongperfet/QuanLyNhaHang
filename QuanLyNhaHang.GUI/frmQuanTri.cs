@@ -16,6 +16,163 @@ namespace QuanLyNhaHang.GUI
         public frmQuanTri()
         {
             InitializeComponent();
+            ApDungGiaoDienHienDai();
+        }
+
+        private static readonly Color MauNen = BistroTheme.Canvas;
+        private static readonly Color MauThe = BistroTheme.Surface;
+        private static readonly Color MauChu = BistroTheme.Ink;
+        private static readonly Color MauChuPhu = BistroTheme.Muted;
+        private static readonly Color MauXanh = BistroTheme.Olive;
+        private static readonly Color MauVien = BistroTheme.Line;
+
+        private void ApDungGiaoDienHienDai()
+        {
+            BackColor = MauNen;
+            ForeColor = MauChu;
+            Font = new Font("Segoe UI", 9.5f);
+            MinimumSize = new Size(1024, 680);
+            ClientSize = new Size(1180, 720);
+
+            tcQuanTri.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tcQuanTri.SizeMode = TabSizeMode.Fixed;
+            tcQuanTri.ItemSize = new Size(210, 42);
+            tcQuanTri.Padding = new Point(14, 4);
+            tcQuanTri.DrawItem += tcQuanTri_DrawItem;
+
+            foreach (TabPage page in tcQuanTri.TabPages)
+            {
+                page.BackColor = MauThe;
+                page.Padding = new Padding(10);
+            }
+
+            pnlTopDoanhThu.BackColor = MauThe;
+            pnlBottomDoanhThu.BackColor = BistroTheme.OliveSoft;
+            pnlMonAnRight.BackColor = MauThe;
+            pnlTaiKhoanRight.BackColor = MauThe;
+
+            lblSoHoaDon.ForeColor = MauChu;
+            lblTongDoanhThu.ForeColor = MauXanh;
+            lblTongDoanhThu.Font = new Font("Segoe UI", 12f, FontStyle.Bold);
+
+            foreach (Label label in new[]
+            {
+                lblTuNgay, lblDenNgay, lblMaMon, lblTenMon, lblDanhMuc,
+                lblDonGia, lblDonViTinh, lblTenDangNhap, lblHoTen, lblMatKhau, lblLoaiTK
+            })
+            {
+                label.ForeColor = MauChuPhu;
+                label.Font = new Font("Segoe UI", 9.5f);
+            }
+
+            DinhDangBang(dgvDoanhThu);
+            DinhDangBang(dgvMonAn);
+            DinhDangBang(dgvTaiKhoan);
+
+            foreach (TextBox textBox in new[] { txtMaMon, txtTenMon, txtDonViTinh, txtTenDangNhap, txtHoTen, txtMatKhau })
+            {
+                textBox.Font = new Font("Segoe UI", 9.5f);
+                textBox.ForeColor = MauChu;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+            }
+
+            foreach (ComboBox comboBox in new[] { cboDanhMuc, cboLoaiTK })
+            {
+                comboBox.Font = new Font("Segoe UI", 9.5f);
+                comboBox.BackColor = MauThe;
+                comboBox.ForeColor = MauChu;
+                comboBox.FlatStyle = FlatStyle.Flat;
+            }
+
+            dtpTuNgay.Font = new Font("Segoe UI", 9.5f);
+            dtpDenNgay.Font = new Font("Segoe UI", 9.5f);
+            nudDonGia.Font = new Font("Segoe UI", 9.5f);
+
+            DinhDangNut(btnThongKe, MauXanh);
+            DinhDangNut(btnXuatExcelDoanhThu, BistroTheme.Wine);
+            DinhDangNut(btnThemMon, MauXanh);
+            DinhDangNut(btnSuaMon, BistroTheme.Brass);
+            DinhDangNut(btnXoaMon, BistroTheme.Wine);
+            DinhDangNut(btnThemTK, MauXanh);
+            DinhDangNut(btnDoiMatKhau, BistroTheme.Brass);
+            DinhDangNut(btnXoaTK, BistroTheme.Wine);
+            DinhDangNutPhu(btnLamMoiMon);
+            DinhDangNutPhu(btnLamMoiTK);
+        }
+
+        private void DinhDangBang(DataGridView grid)
+        {
+            grid.BackgroundColor = MauThe;
+            grid.BorderStyle = BorderStyle.None;
+            grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.GridColor = MauVien;
+            grid.EnableHeadersVisualStyles = false;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            grid.ColumnHeadersHeight = 44;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = BistroTheme.OliveSoft;
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = MauChu;
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = BistroTheme.OliveSoft;
+            grid.DefaultCellStyle.BackColor = MauThe;
+            grid.DefaultCellStyle.ForeColor = MauChu;
+            grid.DefaultCellStyle.Font = new Font("Segoe UI", 9.5f);
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(229, 235, 218);
+            grid.DefaultCellStyle.SelectionForeColor = MauChu;
+            grid.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+            grid.AlternatingRowsDefaultCellStyle.BackColor = BistroTheme.Canvas;
+            grid.RowTemplate.Height = 38;
+        }
+
+        private static void DinhDangNut(Button button, Color color)
+        {
+            button.BackColor = color;
+            button.ForeColor = Color.White;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.MouseOverBackColor = ControlPaint.Light(color, 0.12f);
+            button.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(color, 0.08f);
+            button.Cursor = Cursors.Hand;
+            button.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            button.UseVisualStyleBackColor = false;
+        }
+
+        private static void DinhDangNutPhu(Button button)
+        {
+            button.BackColor = MauThe;
+            button.ForeColor = MauChu;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderColor = MauVien;
+            button.FlatAppearance.BorderSize = 1;
+            button.FlatAppearance.MouseOverBackColor = MauNen;
+            button.Cursor = Cursors.Hand;
+            button.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            button.UseVisualStyleBackColor = false;
+        }
+
+        private void tcQuanTri_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= tcQuanTri.TabPages.Count)
+            {
+                return;
+            }
+
+            bool selected = e.Index == tcQuanTri.SelectedIndex;
+            Color background = selected ? BistroTheme.OliveSoft : MauThe;
+            using (var brush = new SolidBrush(background))
+            {
+                e.Graphics.FillRectangle(brush, e.Bounds);
+            }
+
+            if (selected)
+            {
+                using var accent = new SolidBrush(MauXanh);
+                e.Graphics.FillRectangle(accent, e.Bounds.Left + 12, e.Bounds.Bottom - 3, e.Bounds.Width - 24, 3);
+            }
+
+            Font tabFont = new Font(selected ? "Georgia" : "Segoe UI", 9.5f, selected ? FontStyle.Bold : FontStyle.Regular);
+            TextRenderer.DrawText(e.Graphics, tcQuanTri.TabPages[e.Index].Text.Trim(), tabFont, e.Bounds,
+                selected ? MauXanh : MauChuPhu, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            tabFont.Dispose();
         }
 
         private void frmQuanTri_Load(object sender, EventArgs e)

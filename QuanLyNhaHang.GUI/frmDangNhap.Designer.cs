@@ -31,10 +31,10 @@ namespace QuanLyNhaHang.GUI
             // 
             this.lblTitle.AutoSize = true;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lblTitle.Location = new System.Drawing.Point(95, 20);
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            this.lblTitle.Location = new System.Drawing.Point(90, 20);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(232, 25);
+            this.lblTitle.Size = new System.Drawing.Size(240, 25);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "ĐĂNG NHẬP HỆ THỐNG";
             // 
@@ -89,7 +89,7 @@ namespace QuanLyNhaHang.GUI
             // 
             // btnDangNhap
             // 
-            this.btnDangNhap.BackColor = System.Drawing.Color.RoyalBlue;
+            this.btnDangNhap.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnDangNhap.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDangNhap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDangNhap.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -123,7 +123,7 @@ namespace QuanLyNhaHang.GUI
             this.AcceptButton = this.btnDangNhap;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(249)))), ((int)(((byte)(250)))));
+            this.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.CancelButton = this.btnThoat;
             this.ClientSize = new System.Drawing.Size(414, 246);
             this.Controls.Add(this.btnThoat);
