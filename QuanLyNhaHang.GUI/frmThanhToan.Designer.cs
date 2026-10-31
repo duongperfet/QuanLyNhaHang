@@ -683,7 +683,7 @@ namespace QuanLyNhaHang.GUI
             lblThankYou.Name = "lblThankYou";
             lblThankYou.Size = new Size(560, 18);
             lblThankYou.TabIndex = 9;
-            lblThankYou.Text = "Cảm ơn quý khách và hẹn gặp lại!  •  Grazie e arrivederci!";
+            lblThankYou.Text = "Cảm ơn quý khách và hẹn gặp lại!";
             lblThankYou.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblBillDashed2
@@ -933,7 +933,7 @@ namespace QuanLyNhaHang.GUI
             lblRestaurantName.Name = "lblRestaurantName";
             lblRestaurantName.Size = new Size(560, 24);
             lblRestaurantName.TabIndex = 0;
-            lblRestaurantName.Text = "MAISON OLIVA — CUCINA & BISTROT";
+            lblRestaurantName.Text = "NHÀ HÀNG DƯƠNG HOÀNG";
             lblRestaurantName.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // pnlPlaceholder
@@ -996,7 +996,7 @@ namespace QuanLyNhaHang.GUI
             ShowIcon = false;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            Text = "Thanh Toán & Hóa Đơn - Maison Oliva";
+            Text = "Thanh Toán & Hóa Đơn - Nhà Hàng Dương Hoàng";
             Load += frmThanhToan_Load;
             pnlLeft.ResumeLayout(false);
             pnlTienMatConfig.ResumeLayout(false);

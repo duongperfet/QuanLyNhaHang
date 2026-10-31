@@ -36,7 +36,7 @@ namespace QuanLyNhaHang.GUI
                 string vaiTro = isAdmin ? "Quản lý" : "Nhân viên";
 
                 mnuTaiKhoanHienTai.Text = $"Xin chào: {CurrentAccount.HoTen} ({vaiTro})";
-                this.Text = $"Hệ Thống Quản Lý Nhà Hàng & Bán Hàng POS - [{CurrentAccount.HoTen} - {vaiTro}]";
+                this.Text = $"Nhà Hàng Dương Hoàng - [{CurrentAccount.HoTen} ({vaiTro})]";
 
                 // Phân quyền nghiệp vụ:
                 // 1. Chỉ Quản lý mới có quyền truy cập menu Quản trị (Doanh thu, Món ăn, Tài khoản)
@@ -53,7 +53,7 @@ namespace QuanLyNhaHang.GUI
         public frmMain()
         {
             InitializeComponent();
-            this.Text = "Hệ Thống Quản Lý Nhà Hàng & Bán Hàng POS";
+            this.Text = "Hệ Thống Quản Lý Nhà Hàng Dương Hoàng";
             KhoiTaoNutGopBan();
             ApDungGiaoDienHienDai();
             Resize += (_, _) => BoTriGiaoDien();
@@ -849,7 +849,7 @@ namespace QuanLyNhaHang.GUI
                             var ws = workbook.Worksheets.Add("HoaDon");
 
                             // Tiêu đề hóa đơn
-                            ws.Cell("A1").Value = "HỆ THỐNG QUẢN LÝ NHÀ HÀNG";
+                            ws.Cell("A1").Value = "NHÀ HÀNG DƯƠNG HOÀNG";
                             ws.Range("A1:E1").Merge().Style.Font.SetBold().Font.SetFontSize(16).Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
 
                             ws.Cell("A2").Value = "HÓA ĐƠN THANH TOÁN";

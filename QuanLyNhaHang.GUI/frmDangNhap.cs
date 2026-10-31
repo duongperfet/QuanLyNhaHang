@@ -42,7 +42,7 @@ namespace QuanLyNhaHang.GUI
             brandPanel.Controls.Add(new Label
             {
                 AutoSize = true,
-                Text = "CUCINA  ·  BISTROT",
+                Text = "ẨM THỰC  ·  ĐẲNG CẤP",
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(225, 214, 176),
                 Location = new Point(32, 118)
@@ -50,7 +50,7 @@ namespace QuanLyNhaHang.GUI
             brandPanel.Controls.Add(new Label
             {
                 AutoSize = true,
-                Text = "MAISON\nOLIVA",
+                Text = "DƯƠNG\nHOÀNG",
                 Font = new Font("Georgia", 27f, FontStyle.Bold),
                 ForeColor = Color.White,
                 Location = new Point(30, 148)
@@ -58,10 +58,10 @@ namespace QuanLyNhaHang.GUI
             brandPanel.Controls.Add(new Label
             {
                 AutoSize = true,
-                Text = "Cucina di casa,\nspirito parigino.",
-                Font = new Font("Georgia", 12f, FontStyle.Italic),
+                Text = "Nhà Hàng Dương Hoàng\nHân hạnh phục vụ quý khách.",
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Italic),
                 ForeColor = Color.FromArgb(231, 231, 215),
-                Location = new Point(32, 244)
+                Location = new Point(32, 248)
             });
             Controls.Add(brandPanel);
             brandPanel.SendToBack();

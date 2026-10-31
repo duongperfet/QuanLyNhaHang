@@ -139,7 +139,7 @@ namespace QuanLyNhaHang.GUI
             this.MinimizeBox = false;
             this.Name = "frmDangNhap";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Đăng Nhập - Hệ Thống Quản Lý Nhà Hàng";
+            this.Text = "Đăng Nhập - Nhà Hàng Dương Hoàng";
             this.ResumeLayout(false);
             this.PerformLayout();
         }
