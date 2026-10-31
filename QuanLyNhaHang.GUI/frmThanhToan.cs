@@ -54,7 +54,7 @@ namespace QuanLyNhaHang.GUI
             lblPhaiThuValue.Text = $"{TongTienSauGiam:#,##0} VNĐ";
 
             // 3. Thông tin mặc định Chuyển khoản QR (MB Bank - 0889294024)
-            string maBanClean = _ban.TenBan.Replace(" ", "");
+            string maBanClean = BoDauTiengViet(_ban.TenBan).Replace(" ", "").ToUpper();
             txtNoiDung.Text = $"THANHTOAN {maBanClean} HD{_maHoaDon}";
             txtSoTK.Text = "0889294024";
             txtChuTK.Text = "VO TUNG DUONG";
@@ -83,7 +83,7 @@ namespace QuanLyNhaHang.GUI
             }
 
             cboNganHang.DataSource = _danhSachNganHang;
-            cboNganHang.DisplayMember = "ToString";
+            cboNganHang.DisplayMember = "DisplayName";
             cboNganHang.ValueMember = "Bin";
 
             // Ưu tiên chọn MBBank (970422)
@@ -342,6 +342,22 @@ namespace QuanLyNhaHang.GUI
             {
                 MessageBox.Show("Có lỗi xảy ra trong quá trình cập nhật hóa đơn!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private static string BoDauTiengViet(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+            string normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in normalized)
+            {
+                var uc = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (uc != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString().Normalize(System.Text.NormalizationForm.FormC).Replace('đ', 'd').Replace('Đ', 'D');
         }
     }
 }

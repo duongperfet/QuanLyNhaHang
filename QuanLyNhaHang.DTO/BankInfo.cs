@@ -8,9 +8,14 @@ namespace QuanLyNhaHang.DTO
         public string Name { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
 
+        // Tên hiển thị đầy đủ, rõ ràng cho ComboBox
+        public string DisplayName => !string.IsNullOrEmpty(ShortName) 
+            ? $"{ShortName} - {Name}" 
+            : (!string.IsNullOrEmpty(Code) ? $"{Code} - {Name}" : Name);
+
         public override string ToString()
         {
-            return $"[{Code}] {ShortName} - {Name}";
+            return DisplayName;
         }
     }
 }
