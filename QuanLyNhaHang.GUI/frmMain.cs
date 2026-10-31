@@ -705,7 +705,7 @@ namespace QuanLyNhaHang.GUI
             var listMenu = HoaDonBLL.Instance.GetDanhSachMenuTheoBan(_currentBan.MaBan);
 
             // Mở hộp thoại thanh toán đa phương thức (Tiền mặt / Chuyển khoản QR ngân hàng)
-            using (frmThanhToan fThanhToan = new frmThanhToan(_currentBan, _tongTienGoc, giamGia, maHoaDon))
+            using (frmThanhToan fThanhToan = new frmThanhToan(_currentBan, _tongTienGoc, giamGia, maHoaDon, listMenu))
             {
                 if (fThanhToan.ShowDialog() == DialogResult.OK)
                 {

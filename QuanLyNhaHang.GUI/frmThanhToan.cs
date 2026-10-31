@@ -15,49 +15,60 @@ namespace QuanLyNhaHang.GUI
         private readonly decimal _tongTienGoc;
         private readonly int _giamGia;
         private readonly int _maHoaDon;
+        private readonly List<MenuOrderDTO> _listMenu;
         private List<BankInfo> _danhSachNganHang = new List<BankInfo>();
 
         public string PhuongThucThanhToan { get; private set; } = "Chuyển khoản VietQR";
         public decimal TongTienSauGiam { get; private set; }
         public int GiamGia => _giamGia;
 
-        public frmThanhToan(BanAnDTO ban, decimal tongTienGoc, int giamGia, int maHoaDon)
+        public frmThanhToan(BanAnDTO ban, decimal tongTienGoc, int giamGia, int maHoaDon, List<MenuOrderDTO>? listMenu = null)
         {
             InitializeComponent();
             _ban = ban;
             _tongTienGoc = tongTienGoc;
             _giamGia = giamGia;
             _maHoaDon = maHoaDon;
+            _listMenu = listMenu ?? HoaDonBLL.Instance.GetDanhSachMenuTheoBan(_ban.MaBan);
             TongTienSauGiam = _tongTienGoc - (_tongTienGoc * _giamGia / 100);
         }
 
         private async void frmThanhToan_Load(object sender, EventArgs e)
         {
-            // 1. Áp dụng Theme
-            BistroTheme.ApplyPrimaryButton(btnXacNhan, BistroTheme.Olive);
-            BistroTheme.ApplySecondaryButton(btnHuy);
-            BistroTheme.ApplyPrimaryButton(btnTaoQR, BistroTheme.Brass);
+            // 1. Áp dụng Theme giao diện
+            BistroTheme.ApplyPrimaryButton(btnTaoHoaDonQR, BistroTheme.Wine);
+            BistroTheme.ApplyPrimaryButton(btnTaoHoaDonTienMat, BistroTheme.Olive);
+            BistroTheme.ApplyPrimaryButton(btnHoanTatThanhToan, BistroTheme.Olive);
+            BistroTheme.ApplySecondaryButton(btnDong);
+            BistroTheme.ApplySecondaryButton(btnCopySTK);
+            BistroTheme.ApplySecondaryButton(btnLuuQR);
 
-            // 2. Hiển thị thông tin hóa đơn
+            // 2. Điền thông tin tổng quan bên trái
             lblTenBan.Text = _ban.TenBan.ToUpper();
             lblMaHoaDon.Text = $"Hóa Đơn: #HD{_maHoaDon:D3}";
             lblThoiGian.Text = $"Thời gian: {DateTime.Now:dd/MM/yyyy HH:mm}";
 
-            lblTienGocValue.Text = $"{_tongTienGoc:#,##0} VNĐ";
+            lblTienTamTinh.Text = $"Tiền món: {_tongTienGoc:#,##0} VNĐ";
             decimal tienGiam = _tongTienGoc * _giamGia / 100;
-            lblGiamGiaValue.Text = $"{_giamGia}% (-{tienGiam:#,##0} VNĐ)";
-            lblTongThanhToanValue.Text = $"{TongTienSauGiam:#,##0} VNĐ";
+            lblGiamGia.Text = $"Giảm giá: {_giamGia}% (-{tienGiam:#,##0} VNĐ)";
+            lblPhaiThuValue.Text = $"{TongTienSauGiam:#,##0} VNĐ";
 
-            // 3. Nội dung chuyển khoản gợi ý chuẩn
+            // 3. Thông tin mặc định Chuyển khoản QR (MB Bank - 0889294024)
             string maBanClean = _ban.TenBan.Replace(" ", "");
             txtNoiDung.Text = $"THANHTOAN {maBanClean} HD{_maHoaDon}";
             txtSoTK.Text = "0889294024";
+            txtChuTK.Text = "VO TUNG DUONG";
 
-            // 4. Tải danh sách ngân hàng (từ VietQR API / mặc định offline)
+            // 4. Tiền mặt mặc định
+            txtKhachDua.Text = $"{TongTienSauGiam:#,##0}";
+            CapNhatTienThoi();
+
+            // 5. Tải danh sách ngân hàng từ API / Offline
             await LoadDanhSachNganHangAsync();
 
-            // 5. Tạo mã QR ban đầu
-            await CapNhatMaQRAsync();
+            // 6. Ban đầu hiển thị placeholder yêu cầu xác nhận
+            pnlPlaceholder.Visible = true;
+            pnlBillContent.Visible = false;
         }
 
         private async Task LoadDanhSachNganHangAsync()
@@ -75,7 +86,7 @@ namespace QuanLyNhaHang.GUI
             cboNganHang.DisplayMember = "ToString";
             cboNganHang.ValueMember = "Bin";
 
-            // Ưu tiên chọn MBBank (970422) hoặc Vietcombank (970436)
+            // Ưu tiên chọn MBBank (970422)
             int indexMB = _danhSachNganHang.FindIndex(b => b.Code.Equals("MB", StringComparison.OrdinalIgnoreCase) || b.Bin == "970422" || b.ShortName.Contains("MB"));
             if (indexMB >= 0)
             {
@@ -87,80 +98,33 @@ namespace QuanLyNhaHang.GUI
             }
         }
 
-        private async Task CapNhatMaQRAsync()
-        {
-            if (cboNganHang.SelectedItem is not BankInfo bank) return;
-
-            string soTK = txtSoTK.Text.Trim();
-            string chuTK = txtChuTK.Text.Trim();
-            string noiDung = txtNoiDung.Text.Trim();
-
-            if (string.IsNullOrEmpty(soTK))
-            {
-                MessageBox.Show("Vui lòng nhập số tài khoản ngân hàng thụ hưởng!", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                lblHuongDanQR.Text = "⏳ Đang kết nối API VietQR tạo mã thanh toán...";
-                lblHuongDanQR.ForeColor = BistroTheme.Brass;
-
-                // Tạo ảnh QR VietQR chuẩn
-                Bitmap qrBitmap = await VietQRService.GenerateVietQRBitmapAsync(bank, soTK, TongTienSauGiam, noiDung, chuTK);
-                
-                // Giải phóng ảnh cũ nếu có
-                var oldImg = picQR.Image;
-                picQR.Image = qrBitmap;
-                oldImg?.Dispose();
-
-                lblHuongDanQR.Text = $"💡 Khách dùng App ngân hàng ({bank.ShortName}, VCB, Techcombank, MoMo,...) quét mã là chuyển đúng {TongTienSauGiam:#,##0} VNĐ!";
-                lblHuongDanQR.ForeColor = BistroTheme.Olive;
-            }
-            catch (Exception ex)
-            {
-                lblHuongDanQR.Text = $"❌ Lỗi tạo QR: {ex.Message}";
-                lblHuongDanQR.ForeColor = BistroTheme.Wine;
-            }
-        }
-
-        private async void btnTaoQR_Click(object? sender, EventArgs e)
-        {
-            await CapNhatMaQRAsync();
-        }
-
-        private async void cboNganHang_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            if (IsHandleCreated)
-            {
-                await CapNhatMaQRAsync();
-            }
-        }
-
         private void rdoHinhThuc_CheckedChanged(object? sender, EventArgs e)
         {
             if (rdoChuyenKhoan.Checked)
             {
                 PhuongThucThanhToan = "Chuyển khoản VietQR";
-                pnlTienMat.Visible = false;
-                grpVietQR.Enabled = true;
+                pnlQRConfig.Visible = true;
+                pnlTienMatConfig.Visible = false;
             }
             else
             {
                 PhuongThucThanhToan = "Tiền mặt";
-                pnlTienMat.Visible = true;
-                txtKhachDua.Focus();
-                txtKhachDua.SelectAll();
+                pnlQRConfig.Visible = false;
+                pnlTienMatConfig.Visible = true;
             }
+
+            // Trở về placeholder để người dùng bấm xác nhận tạo hóa đơn cho phương thức mới
+            pnlPlaceholder.Visible = true;
+            pnlBillContent.Visible = false;
         }
 
         #region Xử lý Tiền mặt
         private void txtKhachDua_TextChanged(object? sender, EventArgs e)
         {
-            TinhTienThoi();
+            CapNhatTienThoi();
         }
 
-        private void TinhTienThoi()
+        private void CapNhatTienThoi()
         {
             string raw = txtKhachDua.Text.Replace(",", "").Replace(".", "").Trim();
             if (decimal.TryParse(raw, out decimal khachDua))
@@ -168,23 +132,23 @@ namespace QuanLyNhaHang.GUI
                 decimal tienThoi = khachDua - TongTienSauGiam;
                 if (tienThoi >= 0)
                 {
-                    lblTienThoiValue.ForeColor = BistroTheme.Olive;
-                    lblTienThoiValue.Text = $"{tienThoi:#,##0} VNĐ";
+                    lblTienThuaValue.ForeColor = BistroTheme.Olive;
+                    lblTienThuaValue.Text = $"{tienThoi:#,##0} VNĐ";
                 }
                 else
                 {
-                    lblTienThoiValue.ForeColor = BistroTheme.Wine;
-                    lblTienThoiValue.Text = $"Còn thiếu {Math.Abs(tienThoi):#,##0} VNĐ";
+                    lblTienThuaValue.ForeColor = BistroTheme.Wine;
+                    lblTienThuaValue.Text = $"Còn thiếu {Math.Abs(tienThoi):#,##0} VNĐ";
                 }
             }
             else
             {
-                lblTienThoiValue.Text = "0 VNĐ";
-                lblTienThoiValue.ForeColor = BistroTheme.Muted;
+                lblTienThuaValue.Text = "0 VNĐ";
+                lblTienThuaValue.ForeColor = BistroTheme.Muted;
             }
         }
 
-        private void btnTienDu_Click(object? sender, EventArgs e)
+        private void btnQuickDuaDu_Click(object? sender, EventArgs e)
         {
             txtKhachDua.Text = $"{TongTienSauGiam:#,##0}";
         }
@@ -202,8 +166,119 @@ namespace QuanLyNhaHang.GUI
         }
         #endregion
 
+        #region Xác nhận tạo hóa đơn (QR hoặc Tiền mặt)
+
+        // Khi người dùng ấn xác nhận tạo hóa đơn & mã QR
+        private async void btnTaoHoaDonQR_Click(object? sender, EventArgs e)
+        {
+            if (cboNganHang.SelectedItem is not BankInfo bank)
+            {
+                MessageBox.Show("Vui lòng chọn ngân hàng thụ hưởng!", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string soTK = txtSoTK.Text.Trim();
+            string chuTK = txtChuTK.Text.Trim();
+            string noiDung = txtNoiDung.Text.Trim();
+
+            if (string.IsNullOrEmpty(soTK))
+            {
+                MessageBox.Show("Vui lòng nhập số tài khoản ngân hàng!", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtSoTK.Focus();
+                return;
+            }
+
+            btnTaoHoaDonQR.Enabled = false;
+            btnTaoHoaDonQR.Text = "Đang tạo hóa đơn & mã QR...";
+
+            try
+            {
+                // 1. Hiển thị phiếu hóa đơn chi tiết các món ăn
+                HienThiThongTinHoaDon(laChuyenKhoan: true);
+
+                // 2. Tạo mã QR VietQR Napas 247
+                Bitmap qrImage = await VietQRService.GenerateVietQRBitmapAsync(bank, soTK, TongTienSauGiam, noiDung, chuTK);
+                picQR.Image = qrImage;
+                picQR.Visible = true;
+                lblQRGuide.Visible = true;
+
+                // 3. Hiển thị thông tin ngân hàng trong phiếu
+                lblSummaryPhuongThuc.Text = "Hình thức: Chuyển khoản QR (VietQR)";
+                lblSummaryBankInfo.Text = $"Ngân hàng: {bank.ShortName}\nSTK: {soTK}  •  Chủ TK: {chuTK}\nCú pháp: {noiDung}";
+                btnCopySTK.Visible = true;
+                btnLuuQR.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể tạo mã QR: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnTaoHoaDonQR.Enabled = true;
+                btnTaoHoaDonQR.Text = "👉 XÁC NHẬN TẠO HÓA ĐƠN & MÃ QR";
+            }
+        }
+
+        // Khi người dùng ấn xác nhận tạo hóa đơn tiền mặt
+        private void btnTaoHoaDonTienMat_Click(object? sender, EventArgs e)
+        {
+            string raw = txtKhachDua.Text.Replace(",", "").Replace(".", "").Trim();
+            if (!decimal.TryParse(raw, out decimal khachDua) || khachDua < TongTienSauGiam)
+            {
+                var ask = MessageBox.Show($"Tiền khách đưa ({khachDua:#,##0} VNĐ) nhỏ hơn số tiền cần thanh toán ({TongTienSauGiam:#,##0} VNĐ).\nBạn có muốn tiếp tục tạo hóa đơn không?",
+                                          "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (ask != DialogResult.Yes) return;
+            }
+
+            decimal tienThoi = Math.Max(0, khachDua - TongTienSauGiam);
+
+            // 1. Hiển thị phiếu hóa đơn chi tiết các món ăn
+            HienThiThongTinHoaDon(laChuyenKhoan: false);
+
+            // 2. Ẩn ảnh QR, thay bằng thông tin tiền mặt
+            picQR.Visible = false;
+            lblQRGuide.Visible = false;
+            btnCopySTK.Visible = false;
+            btnLuuQR.Visible = false;
+
+            lblSummaryPhuongThuc.Text = "Hình thức: Tiền mặt";
+            lblSummaryBankInfo.Text = $"Tiền khách đưa: {khachDua:#,##0} VNĐ\nTiền thừa trả khách: {tienThoi:#,##0} VNĐ";
+        }
+
+        private void HienThiThongTinHoaDon(bool laChuyenKhoan)
+        {
+            // Chuyển từ màn hình Placeholder sang Hóa đơn thật
+            pnlPlaceholder.Visible = false;
+            pnlBillContent.Visible = true;
+
+            // Thông tin tiêu đề hóa đơn
+            lblBillInfoBan.Text = $"BÀN: {_ban.TenBan.ToUpper()}  •  HĐ: #HD{_maHoaDon:D3}";
+            lblBillInfoTime.Text = $"Thời gian: {DateTime.Now:dd/MM/yyyy HH:mm}";
+
+            // Nạp danh sách món ăn vào bảng chi tiết
+            lsvChiTietMon.Items.Clear();
+            int stt = 1;
+            foreach (var item in _listMenu)
+            {
+                ListViewItem lvi = new ListViewItem(stt++.ToString());
+                lvi.SubItems.Add(item.TenMon);
+                lvi.SubItems.Add(item.SoLuong.ToString());
+                lvi.SubItems.Add($"{item.DonGia:#,##0}");
+                lvi.SubItems.Add($"{item.ThanhTien:#,##0}");
+                lsvChiTietMon.Items.Add(lvi);
+            }
+
+            // Tóm tắt tiền
+            lblSummaryTienMon.Text = $"Tổng tiền món: {_tongTienGoc:#,##0} VNĐ";
+            decimal tienGiam = _tongTienGoc * _giamGia / 100;
+            lblSummaryGiamGia.Text = $"Giảm giá: {_giamGia}% (-{tienGiam:#,##0} VNĐ)";
+            lblSummaryTongCong.Text = $"TỔNG CỘNG: {TongTienSauGiam:#,##0} VNĐ";
+        }
+
+        #endregion
+
         #region Các nút tiện ích VietQR
-        private void btnSaoChep_Click(object? sender, EventArgs e)
+        private void btnCopySTK_Click(object? sender, EventArgs e)
         {
             if (cboNganHang.SelectedItem is BankInfo bank)
             {
@@ -238,33 +313,28 @@ namespace QuanLyNhaHang.GUI
         }
         #endregion
 
-        private void btnXacNhan_Click(object? sender, EventArgs e)
+        // Nút Hoàn tất thanh toán
+        private void btnHoanTatThanhToan_Click(object? sender, EventArgs e)
         {
-            // Nếu chọn tiền mặt và tiền khách đưa còn thiếu
-            if (rdoTienMat.Checked)
+            if (rdoChuyenKhoan.Checked)
             {
-                string raw = txtKhachDua.Text.Replace(",", "").Replace(".", "").Trim();
-                if (decimal.TryParse(raw, out decimal khachDua) && khachDua < TongTienSauGiam)
-                {
-                    var ask = MessageBox.Show($"Tiền khách đưa ({khachDua:#,##0} VNĐ) nhỏ hơn số tiền cần thanh toán ({TongTienSauGiam:#,##0} VNĐ).\nBạn có chắc chắn muốn tiếp tục hoàn tất không?", 
-                                              "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                    if (ask != DialogResult.Yes) return;
-                }
-            }
-            else
-            {
-                // Chuyển khoản QR
-                var ask = MessageBox.Show($"Xác nhận khách đã chuyển khoản thành công số tiền {TongTienSauGiam:#,##0} VNĐ qua VietQR?",
+                var ask = MessageBox.Show($"Xác nhận khách đã quét mã VietQR và tài khoản MB ({txtSoTK.Text.Trim()}) đã nhận đủ số tiền {TongTienSauGiam:#,##0} VNĐ?",
                                           "Xác nhận thanh toán QR", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (ask != DialogResult.Yes) return;
             }
+            else
+            {
+                var ask = MessageBox.Show($"Xác nhận đã nhận đủ tiền mặt cho {_ban.TenBan} với số tiền {TongTienSauGiam:#,##0} VNĐ?",
+                                          "Xác nhận thanh toán Tiền mặt", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (ask != DialogResult.Yes) return;
+            }
 
-            // Gọi BLL thực hiện thanh toán với phương thức
+            // Gọi BLL thực hiện chốt hóa đơn và cập nhật phương thức thanh toán
             bool isSuccess = HoaDonBLL.Instance.ThanhToan(_ban.MaBan, _giamGia, out _, out _, PhuongThucThanhToan);
             if (isSuccess)
             {
                 MessageBox.Show($"Thanh toán {_ban.TenBan} thành công!\nPhương thức: {PhuongThucThanhToan}\nSố tiền: {TongTienSauGiam:#,##0} VNĐ", 
-                                "Thanh toán thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
                 Close();
             }
