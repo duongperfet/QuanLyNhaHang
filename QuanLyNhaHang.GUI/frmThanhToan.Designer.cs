@@ -604,7 +604,7 @@ namespace QuanLyNhaHang.GUI
             txtSoTK.Name = "txtSoTK";
             txtSoTK.Size = new Size(352, 23);
             txtSoTK.TabIndex = 3;
-            txtSoTK.Text = "24800600195";
+            txtSoTK.Text = "0889294024";
             // 
             // lblSoTK
             // 

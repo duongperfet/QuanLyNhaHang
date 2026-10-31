@@ -51,6 +51,7 @@ namespace QuanLyNhaHang.GUI
             // 3. Nội dung chuyển khoản gợi ý chuẩn
             string maBanClean = _ban.TenBan.Replace(" ", "");
             txtNoiDung.Text = $"THANHTOAN {maBanClean} HD{_maHoaDon}";
+            txtSoTK.Text = "0889294024";
 
             // 4. Tải danh sách ngân hàng (từ VietQR API / mặc định offline)
             await LoadDanhSachNganHangAsync();
@@ -75,7 +76,7 @@ namespace QuanLyNhaHang.GUI
             cboNganHang.ValueMember = "Bin";
 
             // Ưu tiên chọn MBBank (970422) hoặc Vietcombank (970436)
-            int indexMB = _danhSachNganHang.FindIndex(b => b.Code.Equals("MB", StringComparison.OrdinalIgnoreCase));
+            int indexMB = _danhSachNganHang.FindIndex(b => b.Code.Equals("MB", StringComparison.OrdinalIgnoreCase) || b.Bin == "970422" || b.ShortName.Contains("MB"));
             if (indexMB >= 0)
             {
                 cboNganHang.SelectedIndex = indexMB;
