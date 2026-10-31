@@ -73,6 +73,7 @@ CREATE TABLE HoaDon (
     NgayRa DATETIME,
     GiamGia INT NOT NULL DEFAULT 0,
     TongTien DECIMAL(18,0) NOT NULL DEFAULT 0,
+    PhuongThucThanhToan NVARCHAR(50) DEFAULT N'Tiền mặt',
     TrangThai INT NOT NULL DEFAULT 0 -- 0: Chưa thanh toán, 1: Đã thanh toán
 );
 

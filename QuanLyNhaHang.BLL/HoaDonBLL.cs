@@ -18,6 +18,11 @@ namespace QuanLyNhaHang.BLL
             return ChiTietHoaDonDAL.Instance.GetDanhSachMenuTheoBan(maBan);
         }
 
+        public int GetMaHoaDonChuaThanhToanTheoBan(int maBan)
+        {
+            return HoaDonDAL.Instance.GetMaHoaDonChuaThanhToanTheoBan(maBan);
+        }
+
         public void ThemMon(int maBan, int maMon, int soLuong)
         {
             int maHoaDon = HoaDonDAL.Instance.GetMaHoaDonChuaThanhToanTheoBan(maBan);
@@ -40,7 +45,7 @@ namespace QuanLyNhaHang.BLL
             }
         }
 
-        public bool ThanhToan(int maBan, int giamGia, out decimal tongTienTruocGiam, out decimal tongTienSauGiam)
+        public bool ThanhToan(int maBan, int giamGia, out decimal tongTienTruocGiam, out decimal tongTienSauGiam, string phuongThuc = "Tiền mặt")
         {
             tongTienTruocGiam = 0;
             tongTienSauGiam = 0;
@@ -57,8 +62,8 @@ namespace QuanLyNhaHang.BLL
             // Tính tiền sau giảm giá
             tongTienSauGiam = tongTienTruocGiam - (tongTienTruocGiam * giamGia / 100);
 
-            // Cập nhật hóa đơn sang Đã thanh toán (TrangThai = 1)
-            bool result = HoaDonDAL.Instance.ThanhToanHoaDon(maHoaDon, giamGia, tongTienSauGiam);
+            // Cập nhật hóa đơn sang Đã thanh toán (TrangThai = 1) kèm phương thức
+            bool result = HoaDonDAL.Instance.ThanhToanHoaDon(maHoaDon, giamGia, tongTienSauGiam, phuongThuc);
             if (result)
             {
                 // Trả bàn về trạng thái Trống

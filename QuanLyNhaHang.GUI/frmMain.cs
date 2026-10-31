@@ -701,40 +701,23 @@ namespace QuanLyNhaHang.GUI
             }
 
             int giamGia = (int)nudGiamGia.Value;
-            decimal tongTienSauGiam = _tongTienGoc - (_tongTienGoc * giamGia / 100);
+            int maHoaDon = HoaDonBLL.Instance.GetMaHoaDonChuaThanhToanTheoBan(_currentBan.MaBan);
+            var listMenu = HoaDonBLL.Instance.GetDanhSachMenuTheoBan(_currentBan.MaBan);
 
-            string thongTinHoaDon = $"HÓA ĐƠN THANH TOÁN: {_currentBan.TenBan}\n" +
-                                   $"----------------------------------\n" +
-                                   $"Tổng tiền món: {_tongTienGoc:#,##0} VNĐ\n" +
-                                   $"Giảm giá: {giamGia}%\n" +
-                                   $"SỐ TIỀN CẦN THANH TOÁN: {tongTienSauGiam:#,##0} VNĐ\n\n" +
-                                   $"Xác nhận thanh toán và in hóa đơn?";
-
-            var confirm = MessageBox.Show(thongTinHoaDon, "Xác nhận thanh toán", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (confirm == DialogResult.Yes)
+            // Mở hộp thoại thanh toán đa phương thức (Tiền mặt / Chuyển khoản QR ngân hàng)
+            using (frmThanhToan fThanhToan = new frmThanhToan(_currentBan, _tongTienGoc, giamGia, maHoaDon))
             {
-                var listMenu = HoaDonBLL.Instance.GetDanhSachMenuTheoBan(_currentBan.MaBan);
-                bool isSuccess = HoaDonBLL.Instance.ThanhToan(_currentBan.MaBan, giamGia, out _, out _);
-
-                if (isSuccess)
+                if (fThanhToan.ShowDialog() == DialogResult.OK)
                 {
-                    MessageBox.Show($"Thanh toán {_currentBan.TenBan} thành công!\nCảm ơn quý khách và hẹn gặp lại!", 
-                                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                     var askExport = MessageBox.Show($"Bạn có muốn xuất hóa đơn {_currentBan.TenBan} ra file Excel không?", 
                                                     "Xuất hóa đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (askExport == DialogResult.Yes)
                     {
-                        XuatHoaDonExcel(_currentBan.TenBan, listMenu, _tongTienGoc, giamGia, tongTienSauGiam);
+                        XuatHoaDonExcel(_currentBan.TenBan, listMenu, _tongTienGoc, giamGia, fThanhToan.TongTienSauGiam, fThanhToan.PhuongThucThanhToan);
                     }
 
                     nudGiamGia.Value = 0;
                     LoadDanhSachBan();
-                }
-                else
-                {
-                    MessageBox.Show("Có lỗi xảy ra trong quá trình thanh toán!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -849,7 +832,7 @@ namespace QuanLyNhaHang.GUI
             }
         }
 
-        private void XuatHoaDonExcel(string tenBan, List<MenuOrderDTO> listMenu, decimal tongTienGoc, int giamGia, decimal tongTienSauGiam)
+        private void XuatHoaDonExcel(string tenBan, List<MenuOrderDTO> listMenu, decimal tongTienGoc, int giamGia, decimal tongTienSauGiam, string phuongThuc = "Tiền mặt")
         {
             try
             {
@@ -937,6 +920,12 @@ namespace QuanLyNhaHang.GUI
                             ws.Cell(row, 5).Value = tongTienSauGiam;
                             ws.Cell(row, 5).Style.Font.SetBold().Font.SetFontSize(12).Font.SetFontColor(XLColor.DarkRed).NumberFormat.Format = "#,##0";
                             ws.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                            row++;
+                            ws.Cell(row, 4).Value = "Hình thức:";
+                            ws.Cell(row, 4).Style.Font.SetItalic().Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            ws.Cell(row, 5).Value = phuongThuc;
+                            ws.Cell(row, 5).Style.Font.SetItalic().Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
 
                             row += 2;
                             ws.Cell(row, 1).Value = "Cảm ơn quý khách và hẹn gặp lại!";
